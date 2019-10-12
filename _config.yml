@@ -43,7 +43,7 @@ highlight:
   line_number: true
   auto_detect: false
   tab_replace:
-  
+
 # Home page setting
 # path: Root path for your blogs index page. (default = '')
 # per_page: Posts displayed per page. (0 = disable pagination)
@@ -52,7 +52,7 @@ index_generator:
   path: ''
   per_page: 5
   order_by: -date
-  
+
 # Category & Tag
 default_category: uncategorized
 category_map:
@@ -79,3 +79,17 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type:
+
+# 主题配置
+theme_config:
+  local_search:
+    enable: true
+    # If auto, trigger search by changing input.
+    # If manual, trigger search by pressing enter key or search button.
+    trigger: auto
+    # Show top n results per article, show all results by setting to -1
+    top_n_per_article: 1
+    # Unescape html strings to the readable one.
+    unescape: false
+    # Preload the search data when the page loads.
+    preload: false
