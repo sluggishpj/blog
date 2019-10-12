@@ -5,7 +5,7 @@
 # Site
 title: PJ'S BLOG
 subtitle:
-description: 个人博客,涉及HTML5,CSS,JavaScript,Vue等技术分享
+description: B What U Wanna B
 keywords: 前端,HTML5,CSS,JavaScript,Vue
 author: PJ
 language: en
@@ -93,3 +93,15 @@ theme_config:
     unescape: false
     # Preload the search data when the page loads.
     preload: false
+  gitalk:
+    enable: true
+    github_id: sluggishpj
+    repo: blog
+    client_id: dd946c3d0eb6bc5aaf24
+    client_secret: 5051b237a867f9673700aaef753148bd6fc17d34
+    admin_user: sluggishpj
+    distraction_free_mode: true # Facebook-like distraction free mode
+    # Gitalk's display language depends on user's browser or system environment
+    # If you want everyone visiting your site to see a uniform language, you can set a force language value
+    # Available values: en | es-ES | fr | ru | zh-CN | zh-TW
+    language:
