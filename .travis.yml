@@ -30,7 +30,7 @@ deploy:
   github-token: $GITHUB_TOKEN
   local-dir: public
   target-branch: gh-pages
-  keep-history: true
+  keep-history: false
   on:
     branch: master
 
