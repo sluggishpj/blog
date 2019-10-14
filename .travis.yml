@@ -15,8 +15,8 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y -qq yarn
 
-  # 安装并更新 theme next
-  - git submodule update --init --remote --recursive
+  # 安装对应版本的 theme next
+  - git submodule update --init
 
 install:
   - yarn install
