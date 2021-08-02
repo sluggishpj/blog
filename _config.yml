@@ -20,7 +20,7 @@ permalink_defaults:
 
 # Directory
 source_dir: source
-public_dir: public
+public_dir: blog # 这个和上方的 root 保持一致，这样监听到的目录才一致
 tag_dir: tags
 archive_dir: archives
 category_dir: categories
