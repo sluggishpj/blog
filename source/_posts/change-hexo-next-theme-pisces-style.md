@@ -2,9 +2,10 @@
 title: 修改NexT Pisces主题样式
 date: 2017-10-14 12:48:10
 tags:
-- NexT主题
+  - NexT主题
 categories: 
-- Tools
+  - tools
+  - hexo
 ---
 
 ## 修改nexT Pisces主题内容区宽度

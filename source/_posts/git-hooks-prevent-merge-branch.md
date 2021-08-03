@@ -193,3 +193,7 @@ function isMergingConflict() {
   return false;
 }
 ```
+
+## 总结
+
+![](images/git-hooks-prevent-merge-branch/summary.svg)
