@@ -196,4 +196,4 @@ function isMergingConflict() {
 
 ## 总结
 
-![](images/git-hooks-prevent-merge-branch/summary.svg)
+![git-hooks-prevent-merge-summary](https://raw.githubusercontent.com/sluggishpj/assets/main/images/git-hooks-prevent-merge-summary.svg)
