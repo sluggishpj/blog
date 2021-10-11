@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Muse',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":true},
+    copycode: {"enable":true,"show_result":true,"style":"mac"},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="说明Iterator &amp; Generator">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ES6-Iterator-Generator">
+<meta property="og:url" content="https://sluggishpj.github.io/2018/08/28/es6-iterator-generator/index.html">
+<meta property="og:site_name" content="PJ&#39;S BLOG">
+<meta property="og:description" content="说明Iterator &amp; Generator">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-08-28T21:34:49.000Z">
+<meta property="article:modified_time" content="2021-10-11T12:19:35.050Z">
+<meta property="article:author" content="PJ">
+<meta property="article:tag" content="js">
+<meta property="article:tag" content="es6">
+<meta property="article:tag" content="iterator">
+<meta property="article:tag" content="generator">
+<meta name="twitter:card" content="summary">
+  <link rel="canonical" href="https://sluggishpj.github.io/2018/08/28/es6-iterator-generator/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>ES6-Iterator-Generator | PJ'S BLOG</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PJ'S BLOG</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/blog/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+        
+          <i class="fa fa-search fa-fw"></i>
+        
+        Search
+        </a>
+      </li>
+    
+  </ul>
+
+    
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="Searching..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://sluggishpj.github.io/blog/2018/08/28/es6-iterator-generator/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PJ">
+      <meta itemprop="description" content="B What U Wanna B">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PJ'S BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            ES6-Iterator-Generator
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2018-08-28 21:34:49" itemprop="dateCreated datePublished" datetime="2018-08-28T21:34:49+00:00">2018-08-28</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-10-11 12:19:35" itemprop="dateModified" datetime="2021-10-11T12:19:35+00:00">2021-10-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/js/" itemprop="url" rel="index">
+                    <span itemprop="name">js</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/js/es6/" itemprop="url" rel="index">
+                    <span itemprop="name">es6</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>Iterator &amp; Generator</p>
+<a id="more"></a>
+
+<h2 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h2><p>可以通过 Symbol.iterator 来访问对象默认的迭代器</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line"><span class="keyword">let</span> iterator = arr[<span class="built_in">Symbol</span>.iterator]()</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: 1, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: 2, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: 3, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: undefined, done: true &#125;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="for-of遍历"><a href="#for-of遍历" class="headerlink" title="for-of遍历"></a>for-of遍历</h2><p>遍历的对象必须要有迭代器，<strong>数组，字符串，set，map</strong>已经内置了。其他可手动添加。遍历<strong>字符串</strong>能够正确访问<strong>双字节</strong>字符</p>
+<h3 id="创建可迭代对象"><a href="#创建可迭代对象" class="headerlink" title="创建可迭代对象"></a>创建可迭代对象</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> collection = &#123;</span><br><span class="line">    items: [],</span><br><span class="line">    *[<span class="built_in">Symbol</span>.iterator]() &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">let</span> item <span class="keyword">of</span> <span class="keyword">this</span>.items) &#123;</span><br><span class="line">            <span class="keyword">yield</span> item</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">collection.items.push(<span class="number">1</span>)</span><br><span class="line">collection.items.push(<span class="number">2</span>)</span><br><span class="line">collection.items.push(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> x <span class="keyword">of</span> collection) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(x)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1</span></span><br><span class="line"><span class="comment">// 2</span></span><br><span class="line"><span class="comment">// 3</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> myObject = &#123;</span><br><span class="line">    a: <span class="number">2</span>,</span><br><span class="line">    b: <span class="number">3</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">Object</span>.defineProperty(myObject, <span class="built_in">Symbol</span>.iterator, &#123;</span><br><span class="line">    enumerable: <span class="literal">false</span>,</span><br><span class="line">    writable: <span class="literal">false</span>,</span><br><span class="line">    configurable: <span class="literal">true</span>,</span><br><span class="line">    value: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> o = <span class="keyword">this</span></span><br><span class="line">        <span class="keyword">var</span> idx = <span class="number">0</span></span><br><span class="line">        <span class="keyword">var</span> ks = <span class="built_in">Object</span>.keys(o)</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            next: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> &#123;</span><br><span class="line">                    value: o[ks[idx++]],</span><br><span class="line">                    done: (idx &gt; ks.length)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用 for..of 遍历 myObject</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> v <span class="keyword">of</span> myObject) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(v);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 2</span></span><br><span class="line"><span class="comment">// 3</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>或者</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> myObject = &#123;</span><br><span class="line">    a: <span class="number">2</span>,</span><br><span class="line">    b: <span class="number">3</span>,</span><br><span class="line">    [<span class="built_in">Symbol</span>.iterator]() &#123;</span><br><span class="line">        <span class="keyword">var</span> o = <span class="keyword">this</span></span><br><span class="line">        <span class="keyword">var</span> idx = <span class="number">0</span></span><br><span class="line">        <span class="keyword">var</span> ks = <span class="built_in">Object</span>.keys(o);</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            next: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> &#123;</span><br><span class="line">                    value: o[ks[idx++]],</span><br><span class="line">                    done: (idx &gt; ks.length)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="内建迭代器"><a href="#内建迭代器" class="headerlink" title="内建迭代器"></a>内建迭代器</h2><h3 id="集合对象迭代器"><a href="#集合对象迭代器" class="headerlink" title="集合对象迭代器"></a>集合对象迭代器</h3><p>3种类型的集合对象：数组，Map集合和Set集合</p>
+<ul>
+<li>entries() : 返回一个迭代器，其值为多个键值对。<ul>
+<li>数组：第一个元素是数字类型的索引，第二个是索引对应的值</li>
+<li>Set 集合，第一个元素与第二个元素都是值</li>
+<li>Map集合，第一个元素为键名，第二个是键名对应的值</li>
+</ul>
+</li>
+<li>values() : 返回一个迭代器，其值为集合的所有值<ul>
+<li>Set 集合：keys() 和 values() 返回的是相同的迭代器</li>
+</ul>
+</li>
+<li>keys() : 返回一个迭代器，其值为集合中的所有键名</li>
+</ul>
+<p><strong>在 for-of 循环中，如果没有显示制定则使用默认的迭代器，数组和 Set 集合的默认迭代器是 values() 方法，Map 集合的默认迭代器是 entries() 方法</strong></p>
+<h3 id="NodeList-迭代器"><a href="#NodeList-迭代器" class="headerlink" title="NodeList 迭代器"></a>NodeList 迭代器</h3><p>DOM 定义的 NodeList 类型（定义在 HTML 标准中）也拥有默认迭代器，其行为和数组的默认迭代器一致</p>
+<h2 id="Generator"><a href="#Generator" class="headerlink" title="Generator"></a>Generator</h2><ul>
+<li>判断Generator函数及生成器对象</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 检测生成器函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">isGeneratorFunction</span>(<span class="params">fn</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> genFn = (<span class="function"><span class="keyword">function</span>*(<span class="params"></span>) </span>&#123;&#125;).constructor;</span><br><span class="line">    <span class="keyword">return</span> fn <span class="keyword">instanceof</span> genFn;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 检测生成器实例对象</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">isGenerator</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> obj.toString ? obj.toString() === <span class="string">'[object Generator]'</span> : <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span>* <span class="title">genFn</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> a = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="keyword">yield</span> a = a*<span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> gen = genFn();</span><br><span class="line"><span class="built_in">console</span>.log(gen.next()); <span class="comment">// &#123; value: 2, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(gen.next());  <span class="comment">// &#123; value: 4, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(gen.next());  <span class="comment">// &#123; value: 8, done: false &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(isGeneratorFunction(genFn)); <span class="comment">// true</span></span><br><span class="line"><span class="built_in">console</span>.log(isGenerator(gen)); <span class="comment">// true</span></span><br><span class="line"><span class="built_in">console</span>.log(isGenerator(&#123;&#125;)); <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>在一个<strong>普通函数</strong>中使用yield表达式，结果产生一个句法错误</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> arr = [<span class="number">1</span>, [[<span class="number">2</span>, <span class="number">3</span>], <span class="number">4</span>], [<span class="number">5</span>, <span class="number">6</span>]];</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> flat = <span class="function"><span class="keyword">function</span>*(<span class="params">a</span>) </span>&#123;</span><br><span class="line">    a.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">item</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">typeof</span> item !== <span class="string">'number'</span>) &#123;</span><br><span class="line">            <span class="keyword">yield</span>* flat(item); <span class="comment">// SyntaxError</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">yield</span> item;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>上面代码也会产生句法错误，因为forEach方法的参数是一个普通函数，但是在里面使用了yield表达式。一种修改方法是改用for循环。</p>
+</blockquote>
+<h3 id="给迭代器传递参数"><a href="#给迭代器传递参数" class="headerlink" title="给迭代器传递参数"></a>给迭代器传递参数</h3><p>yield表达式本身没有返回值，或者说总是返回 undefined 。next 方法可以带一个参数，该参数就会被当作上一个yield表达式的返回值。特例是<strong>第一次调用 next() 方法时无论传入什么参数都会被丢弃</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span>* <span class="title">f</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; <span class="literal">true</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">var</span> reset = <span class="keyword">yield</span> i;</span><br><span class="line">        <span class="built_in">console</span>.log(i, reset);</span><br><span class="line">        <span class="keyword">if</span> (reset) &#123; i = <span class="number">-1</span>; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> g = f();</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(g.next()); <span class="comment">// &#123; value: 0, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(g.next()); <span class="comment">// &#123; value: 1, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(g.next()); <span class="comment">// &#123; value: 2, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(g.next(<span class="literal">true</span>)); <span class="comment">// &#123; value: 0, done: false &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// &#123; value: 0, done: false &#125;</span></span><br><span class="line"><span class="comment">// 0 undefined</span></span><br><span class="line"><span class="comment">// &#123; value: 1, done: false &#125;</span></span><br><span class="line"><span class="comment">// 1 undefined</span></span><br><span class="line"><span class="comment">// &#123; value: 2, done: false &#125;</span></span><br><span class="line"><span class="comment">// 2 true</span></span><br><span class="line"><span class="comment">// &#123; value: 0, done: false &#125;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="在迭代器中抛出错误"><a href="#在迭代器中抛出错误" class="headerlink" title="在迭代器中抛出错误"></a>在迭代器中抛出错误</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> *<span class="title">createIterator</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> first = <span class="keyword">yield</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">let</span> second = <span class="keyword">yield</span> first + <span class="number">2</span></span><br><span class="line">    <span class="keyword">yield</span> second + <span class="number">3</span> <span class="comment">// 不会被执行</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> iterator = createIterator()</span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: 1, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.next(<span class="number">4</span>)) <span class="comment">// &#123; value: 6, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.throw(<span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Boom'</span>))) <span class="comment">// 抛出错误</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.next())</span><br></pre></td></tr></table></figure>
+
+<p>捕获错误，调用 throw()  方法也会像调用 next() 方法一样返回一个结果对象。由于在生成器内部捕获了这个错误，因而会继续执行下一条 yield 语句，最终返回数值 9</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> *<span class="title">createIterator</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> first = <span class="keyword">yield</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">let</span> second</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        second = <span class="keyword">yield</span> first + <span class="number">2</span></span><br><span class="line">    &#125;<span class="keyword">catch</span>(ex) &#123;</span><br><span class="line">        second = first + <span class="number">2</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">yield</span> second + <span class="number">3</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> iterator = createIterator()</span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: 1, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.next(<span class="number">4</span>)) <span class="comment">// &#123; value: 6, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.throw(<span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Boom'</span>))) <span class="comment">// &#123; value: 9, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: undefined, done: true &#125;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="生成器返回语句"><a href="#生成器返回语句" class="headerlink" title="生成器返回语句"></a>生成器返回语句</h3><p>在生成器中，return 表示所有操作已经完成，属性 done 被设置为 true，如果同时提供了相应的值，则属性 value 会被设置为这个值</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> *<span class="title">createIterator</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">yield</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">    <span class="keyword">yield</span> <span class="number">3</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> iterator = createIterator()</span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: 1, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: 2, done: true &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: undefined, done: true &#125;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="委托生成器"><a href="#委托生成器" class="headerlink" title="委托生成器"></a>委托生成器</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> *<span class="title">createNumberIterator</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">yield</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> *<span class="title">createCombinedIterator</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> result = <span class="keyword">yield</span> *createNumberIterator()</span><br><span class="line">    <span class="keyword">yield</span> result</span><br><span class="line">    <span class="keyword">yield</span> <span class="number">3</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> iterator = createCombinedIterator()</span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: 1, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: 2, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: 3, done: false &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(iterator.next()) <span class="comment">// &#123; value: undefined, done: true &#125;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="异步任务执行器"><a href="#异步任务执行器" class="headerlink" title="异步任务执行器"></a>异步任务执行器</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">run</span>(<span class="params">taskDef</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> task = taskDef()</span><br><span class="line">    <span class="keyword">let</span> result = task.next()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">step</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!result.done) &#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">typeof</span> result.value === <span class="string">'function'</span>) &#123;</span><br><span class="line">                result.value(<span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">                    <span class="keyword">if</span>(err) &#123;</span><br><span class="line">                        result = task.throw(err)</span><br><span class="line">                        <span class="keyword">return</span></span><br><span class="line">                    &#125;</span><br><span class="line">                    result = task.next(data)</span><br><span class="line">                    step()</span><br><span class="line">                &#125;)</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                result = task.next(result.value)</span><br><span class="line">                step()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 开始迭代执行</span></span><br><span class="line">    step()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">async1</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">cb</span>) </span>&#123;</span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            cb(<span class="literal">null</span>, <span class="string">'done1'</span>)</span><br><span class="line">        &#125;, <span class="number">1000</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">async2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">cb</span>) </span>&#123;</span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            cb(<span class="literal">null</span>, <span class="string">'done2'</span>)</span><br><span class="line">        &#125;, <span class="number">1000</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">run(<span class="function"><span class="keyword">function</span>*(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> content1 = <span class="keyword">yield</span> async1()</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'content1'</span>, content1) <span class="comment">// content1 done1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> content2 = <span class="keyword">yield</span> async2()</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'content2'</span>, content2) <span class="comment">// content2 done2</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>参考链接1：<a href="http://blog.csdn.net/kaelyn_X" target="_blank" rel="noopener">http://blog.csdn.net/kaelyn_X</a></p>
+<p>参考链接2：<a href="http://es6.ruanyifeng.com/" target="_blank" rel="noopener">http://es6.ruanyifeng.com/</a></p>
+<p>参考书籍：《UNDERESTANDING ECMASCRIPT 6》</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/blog/tags/js/" rel="tag"># js</a>
+            
+              <a href="/blog/tags/es6/" rel="tag"># es6</a>
+            
+              <a href="/blog/tags/iterator/" rel="tag"># iterator</a>
+            
+              <a href="/blog/tags/generator/" rel="tag"># generator</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/blog/2018/07/28/es6-typed-array/" rel="next" title="ES6-TypedArray">
+                  <i class="fa fa-chevron-left"></i> ES6-TypedArray
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/blog/2018/09/25/es6-proxy-reflection/" rel="prev" title="ES6-Proxy-Reflection">
+                  ES6-Proxy-Reflection <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="gitalk-container"></div>
+  
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说明"><span class="nav-number">1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iterator"><span class="nav-number">2.</span> <span class="nav-text">Iterator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#for-of遍历"><span class="nav-number">3.</span> <span class="nav-text">for-of遍历</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建可迭代对象"><span class="nav-number">3.1.</span> <span class="nav-text">创建可迭代对象</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内建迭代器"><span class="nav-number">4.</span> <span class="nav-text">内建迭代器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#集合对象迭代器"><span class="nav-number">4.1.</span> <span class="nav-text">集合对象迭代器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NodeList-迭代器"><span class="nav-number">4.2.</span> <span class="nav-text">NodeList 迭代器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Generator"><span class="nav-number">5.</span> <span class="nav-text">Generator</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#给迭代器传递参数"><span class="nav-number">5.1.</span> <span class="nav-text">给迭代器传递参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在迭代器中抛出错误"><span class="nav-number">5.2.</span> <span class="nav-text">在迭代器中抛出错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成器返回语句"><span class="nav-number">5.3.</span> <span class="nav-text">生成器返回语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#委托生成器"><span class="nav-number">5.4.</span> <span class="nav-text">委托生成器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异步任务执行器"><span class="nav-number">5.5.</span> <span class="nav-text">异步任务执行器</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">PJ</p>
+  <div class="site-description" itemprop="description">B What U Wanna B</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/blog/archives/%20%7C%7C%20archive">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/blog/categories/%20%7C%7C%20th">
+          
+        
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/blog/tags/%20%7C%7C%20tags">
+          
+        
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PJ</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.1
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+<script src="/blog/js/utils.js?v=7.4.1.js"></script>
+
+<script src="/blog/js/motion.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/next-boot.js?v=7.4.1.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+<script src="/blog/js/local-search.js?v=7.4.1.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'dd946c3d0eb6bc5aaf24',
+      clientSecret: '5051b237a867f9673700aaef753148bd6fc17d34',
+      repo: 'blog',
+      owner: 'sluggishpj',
+      admin: ['sluggishpj'],
+      id: 'ba6181b3895bb93999b490302eb4cbf3',
+        language: window.navigator.language || window.navigator.userLanguage,
+      
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Muse',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":true},
+    copycode: {"enable":true,"show_result":true,"style":"mac"},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="说明Proxy &amp; Reflection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ES6-Proxy-Reflection">
+<meta property="og:url" content="https://sluggishpj.github.io/2018/09/25/es6-proxy-reflection/index.html">
+<meta property="og:site_name" content="PJ&#39;S BLOG">
+<meta property="og:description" content="说明Proxy &amp; Reflection">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-09-25T23:24:45.000Z">
+<meta property="article:modified_time" content="2021-10-11T12:19:35.050Z">
+<meta property="article:author" content="PJ">
+<meta property="article:tag" content="js">
+<meta property="article:tag" content="es6">
+<meta property="article:tag" content="proxy">
+<meta property="article:tag" content="reflection">
+<meta name="twitter:card" content="summary">
+  <link rel="canonical" href="https://sluggishpj.github.io/2018/09/25/es6-proxy-reflection/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>ES6-Proxy-Reflection | PJ'S BLOG</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PJ'S BLOG</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/blog/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+        
+          <i class="fa fa-search fa-fw"></i>
+        
+        Search
+        </a>
+      </li>
+    
+  </ul>
+
+    
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="Searching..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://sluggishpj.github.io/blog/2018/09/25/es6-proxy-reflection/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PJ">
+      <meta itemprop="description" content="B What U Wanna B">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PJ'S BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            ES6-Proxy-Reflection
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2018-09-25 23:24:45" itemprop="dateCreated datePublished" datetime="2018-09-25T23:24:45+00:00">2018-09-25</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-10-11 12:19:35" itemprop="dateModified" datetime="2021-10-11T12:19:35+00:00">2021-10-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/js/" itemprop="url" rel="index">
+                    <span itemprop="name">js</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/js/es6/" itemprop="url" rel="index">
+                    <span itemprop="name">es6</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>Proxy &amp; Reflection</p>
+<a id="more"></a>
+
+<h2 id="代理和反射"><a href="#代理和反射" class="headerlink" title="代理和反射"></a>代理和反射</h2><table>
+<thead>
+<tr>
+<th>proxy trap</th>
+<th>覆盖的特性</th>
+<th>默认特性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>get</td>
+<td>读取一个属性</td>
+<td>Reflect.get()</td>
+</tr>
+<tr>
+<td>set</td>
+<td>写入一个属性</td>
+<td>Reflect.set()</td>
+</tr>
+<tr>
+<td>has</td>
+<td>in 操作符</td>
+<td>Reflect.has()</td>
+</tr>
+<tr>
+<td>deleteProperty</td>
+<td>delete 操作符</td>
+<td>Reflect.deleteProperty()</td>
+</tr>
+<tr>
+<td>getPrototypeOf</td>
+<td>Object.getPrototypeOf()</td>
+<td>Reflect.getPrototypeOf()</td>
+</tr>
+<tr>
+<td>setPrototypeOf</td>
+<td>Object.setPrototypeOf()</td>
+<td>Reflect.setPrototypeOf</td>
+</tr>
+<tr>
+<td>isExtensible</td>
+<td>Object.isExtensible()</td>
+<td>Reflect.isExtensible</td>
+</tr>
+<tr>
+<td>preventExtensions</td>
+<td>Object.preventExtensions()</td>
+<td>Reflect.preventExtensions()</td>
+</tr>
+<tr>
+<td>getOwnPropertyDescriptor</td>
+<td>Object.getOwnPropertyDescriptor()</td>
+<td>Reflect.getOwnPropertyDescriptor()</td>
+</tr>
+<tr>
+<td>defineProperty</td>
+<td>Object.defineProperty()</td>
+<td>Reflect.defineProperty()</td>
+</tr>
+<tr>
+<td>ownKeys</td>
+<td>Object.keys()、<br />Object.getOwnPropertyNames()、<br />Object.getOwnPropertySymbols()</td>
+<td>Reflect.ownKeys()</td>
+</tr>
+<tr>
+<td>apply</td>
+<td>调用一个函数</td>
+<td>Reflect.apply()</td>
+</tr>
+<tr>
+<td>construct</td>
+<td>用  new 调用一个函数</td>
+<td>Reflect.construct()</td>
+</tr>
+</tbody></table>
+<h2 id="创建代理"><a href="#创建代理" class="headerlink" title="创建代理"></a>创建代理</h2><h3 id="没有陷阱的代理"><a href="#没有陷阱的代理" class="headerlink" title="没有陷阱的代理"></a>没有陷阱的代理</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> target = &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> proxy = <span class="keyword">new</span> <span class="built_in">Proxy</span>(target, &#123;&#125;)</span><br><span class="line"></span><br><span class="line">proxy.name = <span class="string">'proxy'</span></span><br><span class="line"><span class="built_in">console</span>.log(proxy.name) <span class="comment">// proxy</span></span><br><span class="line"><span class="built_in">console</span>.log(target.name) <span class="comment">// proxy</span></span><br><span class="line"></span><br><span class="line">target.name = <span class="string">'target'</span></span><br><span class="line"><span class="built_in">console</span>.log(proxy.name) <span class="comment">// target</span></span><br><span class="line"><span class="built_in">console</span>.log(target.name) <span class="comment">// target</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>代理将所有操作直接 转发到目标。 proxy.name 和 target.name 引用的都是 target.name</p>
+</blockquote>
+<h3 id="set-trapTarget-key-value-receiver"><a href="#set-trapTarget-key-value-receiver" class="headerlink" title="set(trapTarget, key, value, receiver)"></a>set(trapTarget, key, value, receiver)</h3><ul>
+<li>trapTarget: 用于接收属性（代理的目标）的对象</li>
+<li>key: 要写入的属性键（字符串 或 Symbol 类型）</li>
+<li>value: 被写入属性的值</li>
+<li>receiver: 操作发生的对象（通常是代理）</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> target = &#123;</span><br><span class="line">    name: <span class="string">'target'</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> proxy = <span class="keyword">new</span> <span class="built_in">Proxy</span>(target, &#123;</span><br><span class="line">    <span class="keyword">set</span>(trapTarget, key, value, reciver) &#123;</span><br><span class="line">        <span class="comment">// 忽略不希望受到影响的已有属性</span></span><br><span class="line">        <span class="keyword">if</span>(!trapTarget.hasOwnProperty(key)) &#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">isNaN</span>(value)) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'属性必须是数字'</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 添加属性</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">Reflect</span>.set(trapTarget, key, value, reciver)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">proxy.count = <span class="number">1</span></span><br><span class="line"><span class="built_in">console</span>.log(proxy.count) <span class="comment">// 1</span></span><br><span class="line"><span class="built_in">console</span>.log(target.count) <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 抛出错误</span></span><br><span class="line">proxy.anotherName = <span class="string">'proxy'</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="get-trapTarget-key-receiver"><a href="#get-trapTarget-key-receiver" class="headerlink" title="get(trapTarget, key, receiver)"></a>get(trapTarget, key, receiver)</h3><h3 id="has-trapTarget-key-返回-false"><a href="#has-trapTarget-key-返回-false" class="headerlink" title="has(trapTarget, key): 返回 false"></a>has(trapTarget, key): 返回 false</h3><h3 id="deleteProperty-trapTarget-key"><a href="#deleteProperty-trapTarget-key" class="headerlink" title="deleteProperty(trapTarget, key)"></a>deleteProperty(trapTarget, key)</h3><ul>
+<li>直接返回 false 能阻止删除操作。返回 true 未必删除了，只有通过 Reflect.deleteProperty 才可能删除成功</li>
+</ul>
+<h3 id="getPrototypeOf-trapTarget"><a href="#getPrototypeOf-trapTarget" class="headerlink" title="getPrototypeOf(trapTarget)"></a>getPrototypeOf(trapTarget)</h3><ul>
+<li>如果传入的参数不是对象，则 Reflect.getPrototypeOf() 方法会抛出错误，而 Object.getPrototypeOf() 方法则会在操作执行前先将参数强制转换为一个对象</li>
+</ul>
+<h3 id="setPrototypeOf-trapTarget-proto"><a href="#setPrototypeOf-trapTarget-proto" class="headerlink" title="setPrototypeOf(trapTarget, proto)"></a>setPrototypeOf(trapTarget, proto)</h3><ul>
+<li>Reflect.setPrototypeOf() 方法返回一个<strong>布尔值</strong>来表示操作是否成功，成功时会返回 true，失败时返回 false。而 Object.setPrototypeOf() 方法一旦失败就会抛出一个错误</li>
+<li>Object.setPrototypeOf() 方法返回第一个参数作为它的返回值</li>
+</ul>
+<h3 id="isExtensible-target-amp-preventExtensions-target"><a href="#isExtensible-target-amp-preventExtensions-target" class="headerlink" title="isExtensible(target) &amp; preventExtensions(target)"></a>isExtensible(target) &amp; preventExtensions(target)</h3><ul>
+<li>传入非对象值时，Object.isExtensible() 返回 false，而 Reflect.isExtensible() 则抛出一个错误</li>
+<li>Object.preventExtensions() 的结果返回的是 其参数，Reflect.preventExtensions() 的参数如果不是对象会抛出错误，如果是一个对象，操作成功时 返回 true，失败时返回 false</li>
+</ul>
+<h3 id="defineProperty-trapTarget-key-descriptor-amp-getOwnPropertyDescriptor-trapTarget-key"><a href="#defineProperty-trapTarget-key-descriptor-amp-getOwnPropertyDescriptor-trapTarget-key" class="headerlink" title="defineProperty(trapTarget, key, descriptor) &amp; getOwnPropertyDescriptor(trapTarget, key)"></a>defineProperty(trapTarget, key, descriptor) &amp; getOwnPropertyDescriptor(trapTarget, key)</h3><ul>
+<li>defineProperty 陷阱在操作成功后返回 true，否则返回 false</li>
+<li>Object.defineProperty() 返回 false 时会抛出错误。可以让陷阱返回 true 并且不调用 Reflect.defineProperty() 方法，可以让 Object.defineProperty() 方法静默失败</li>
+<li>getOwnPropertyDescriptor 的返回值必须是 null，undefined 或一个对象。如果返回对象，则对象自己的属性只能是 enumerable, configurable, value, writable, get 和 set，否则报错</li>
+<li>Object.defineProperty() 方法 和 Reflect.defineProperty() 方法只有返回值不同：Object.defineProperty() 方法返回第一个参数， Reflect.defineProperty() 与操作有关，成功返回 true，失败返回 false</li>
+<li>Object.getOwnPropertyDescriptor() 传入原始值作为第一个参数，内部会将其强制转换为一个对象。Reflect.getOwnPropertyDescriptor() 传入原始值会报错</li>
+</ul>
+<h3 id="ownKeys-trapTarget"><a href="#ownKeys-trapTarget" class="headerlink" title="ownKeys(trapTarget)"></a>ownKeys(trapTarget)</h3><p>通过返回一个数组的值可以覆写其行为。这个数组被用于 Object.keys()、Object.getOwnPropertyNames()、Object.getOwnPropertySymbols() 和 Object.assign()。Object.assign() 方法用数组来确定需要复制的属性</p>
+<ul>
+<li>Object.getOwnPropertyNames() 和 Object.keys() 方法返回的结果将 Symbol 类型的属性名排除在外</li>
+<li>Object.getOwnPropertySymbols() 方法返回的结果将字符串类型的属性名排除</li>
+<li>Object.assign() 方法支持字符串 和 Symbol 两种类型</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> proxy = <span class="keyword">new</span> <span class="built_in">Proxy</span>(&#123;&#125;, &#123;</span><br><span class="line">    ownKeys(trapTarget) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">Reflect</span>.ownKeys(trapTarget).filter(<span class="function"><span class="params">key</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">typeof</span> key !== <span class="string">'string'</span> || key[<span class="number">0</span>] !== <span class="string">'_'</span></span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> nameSymbol = <span class="built_in">Symbol</span>(<span class="string">'name'</span>)</span><br><span class="line">proxy.name = <span class="string">'proxy'</span></span><br><span class="line">proxy._name = <span class="string">'private'</span></span><br><span class="line">proxy[nameSymbol] = <span class="string">'symbol'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> names = <span class="built_in">Object</span>.getOwnPropertyNames(proxy)</span><br><span class="line"><span class="keyword">let</span> keys = <span class="built_in">Object</span>.keys(proxy)</span><br><span class="line"><span class="keyword">let</span> symbols = <span class="built_in">Object</span>.getOwnPropertySymbols(proxy)</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(names) <span class="comment">// [ 'name' ]</span></span><br><span class="line"><span class="built_in">console</span>.log(keys) <span class="comment">// [ 'name' ]</span></span><br><span class="line"><span class="built_in">console</span>.log(symbols) <span class="comment">// [ Symbol(name) ]</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="apply-amp-construct-陷阱"><a href="#apply-amp-construct-陷阱" class="headerlink" title="apply &amp; construct 陷阱"></a>apply &amp; construct 陷阱</h3><p>使用 <strong>new</strong> 操作符调用函数，则执行 [[Construct]] 方法；若不用，则执行 [[Call]] 方法此时会执行 apply 陷阱</p>
+<ul>
+<li>Reflect.apply(trapTarget, thisArg, argumentsList)</li>
+<li>Reflect.construct(trapTarget, argumentsList)</li>
+</ul>
+<h3 id="可撤销代理"><a href="#可撤销代理" class="headerlink" title="可撤销代理"></a>可撤销代理</h3><p>可以使用 Proxy.revocable() 方法创建可撤销的代理，该方法与 Proxy 构造函数相同的参数：目标对象和代理处理程序。返回值是具有以下属性的对象：</p>
+<ul>
+<li>proxy 可撤销的代理对象</li>
+<li>revoke 撤销代理要调用的函数</li>
+</ul>
+<p>当调用 revoke() 函数时，不能通过 proxy 执行进一步的操作。任何与代理对象交互的尝试都会触发代理陷阱抛出错误</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> target = &#123;</span><br><span class="line">    name: <span class="string">'target'</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> &#123;proxy, revoke&#125; = <span class="built_in">Proxy</span>.revocable(target, &#123;&#125;)</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(proxy.name) <span class="comment">// target</span></span><br><span class="line"></span><br><span class="line">revoke()</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(proxy.name) <span class="comment">// TypeError: Cannot perform 'get' on a proxy that has been revoked</span></span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>参考书籍：《UNDERESTANDING ECMASCRIPT 6》</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/blog/tags/js/" rel="tag"># js</a>
+            
+              <a href="/blog/tags/es6/" rel="tag"># es6</a>
+            
+              <a href="/blog/tags/proxy/" rel="tag"># proxy</a>
+            
+              <a href="/blog/tags/reflection/" rel="tag"># reflection</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/blog/2018/08/28/es6-iterator-generator/" rel="next" title="ES6-Iterator-Generator">
+                  <i class="fa fa-chevron-left"></i> ES6-Iterator-Generator
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/blog/2018/10/28/es2016-and-es2017/" rel="prev" title="ES2016-and-ES2017">
+                  ES2016-and-ES2017 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="gitalk-container"></div>
+  
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说明"><span class="nav-number">1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代理和反射"><span class="nav-number">2.</span> <span class="nav-text">代理和反射</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建代理"><span class="nav-number">3.</span> <span class="nav-text">创建代理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#没有陷阱的代理"><span class="nav-number">3.1.</span> <span class="nav-text">没有陷阱的代理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#set-trapTarget-key-value-receiver"><span class="nav-number">3.2.</span> <span class="nav-text">set(trapTarget, key, value, receiver)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#get-trapTarget-key-receiver"><span class="nav-number">3.3.</span> <span class="nav-text">get(trapTarget, key, receiver)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#has-trapTarget-key-返回-false"><span class="nav-number">3.4.</span> <span class="nav-text">has(trapTarget, key): 返回 false</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#deleteProperty-trapTarget-key"><span class="nav-number">3.5.</span> <span class="nav-text">deleteProperty(trapTarget, key)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#getPrototypeOf-trapTarget"><span class="nav-number">3.6.</span> <span class="nav-text">getPrototypeOf(trapTarget)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#setPrototypeOf-trapTarget-proto"><span class="nav-number">3.7.</span> <span class="nav-text">setPrototypeOf(trapTarget, proto)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#isExtensible-target-amp-preventExtensions-target"><span class="nav-number">3.8.</span> <span class="nav-text">isExtensible(target) &amp; preventExtensions(target)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#defineProperty-trapTarget-key-descriptor-amp-getOwnPropertyDescriptor-trapTarget-key"><span class="nav-number">3.9.</span> <span class="nav-text">defineProperty(trapTarget, key, descriptor) &amp; getOwnPropertyDescriptor(trapTarget, key)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ownKeys-trapTarget"><span class="nav-number">3.10.</span> <span class="nav-text">ownKeys(trapTarget)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#apply-amp-construct-陷阱"><span class="nav-number">3.11.</span> <span class="nav-text">apply &amp; construct 陷阱</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可撤销代理"><span class="nav-number">3.12.</span> <span class="nav-text">可撤销代理</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">PJ</p>
+  <div class="site-description" itemprop="description">B What U Wanna B</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/blog/archives/%20%7C%7C%20archive">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/blog/categories/%20%7C%7C%20th">
+          
+        
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/blog/tags/%20%7C%7C%20tags">
+          
+        
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PJ</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.1
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+<script src="/blog/js/utils.js?v=7.4.1.js"></script>
+
+<script src="/blog/js/motion.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/next-boot.js?v=7.4.1.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+<script src="/blog/js/local-search.js?v=7.4.1.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'dd946c3d0eb6bc5aaf24',
+      clientSecret: '5051b237a867f9673700aaef753148bd6fc17d34',
+      repo: 'blog',
+      owner: 'sluggishpj',
+      admin: ['sluggishpj'],
+      id: '533cac27c9f151b68d3ce5955d8b8d67',
+        language: window.navigator.language || window.navigator.userLanguage,
+      
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

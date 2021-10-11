@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Muse',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":true},
+    copycode: {"enable":true,"show_result":true,"style":"mac"},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="说明记录如何使用 travis-ci 自动化构建 hexo 博客并部署到 github pages。最终效果：只需编写 markdown，然后推送到 github，之后会通过 travis-ci 自动化构建并部署到指定仓库的 github pages。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自动化构建并部署hexo博客">
+<meta property="og:url" content="https://sluggishpj.github.io/2019/10/23/auto-build-and-deploy-hexo-blog/index.html">
+<meta property="og:site_name" content="PJ&#39;S BLOG">
+<meta property="og:description" content="说明记录如何使用 travis-ci 自动化构建 hexo 博客并部署到 github pages。最终效果：只需编写 markdown，然后推送到 github，之后会通过 travis-ci 自动化构建并部署到指定仓库的 github pages。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s2.ax1x.com/2019/10/23/KJ5IN8.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/10/23/KJqORf.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/10/23/KJLKoR.png">
+<meta property="article:published_time" content="2019-10-23T10:08:24.000Z">
+<meta property="article:modified_time" content="2021-10-11T12:19:35.050Z">
+<meta property="article:author" content="PJ">
+<meta property="article:tag" content="travis">
+<meta property="article:tag" content="ci">
+<meta property="article:tag" content="hexo">
+<meta property="article:tag" content="git submodule">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.ax1x.com/2019/10/23/KJ5IN8.png">
+  <link rel="canonical" href="https://sluggishpj.github.io/2019/10/23/auto-build-and-deploy-hexo-blog/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>自动化构建并部署hexo博客 | PJ'S BLOG</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PJ'S BLOG</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/blog/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+        
+          <i class="fa fa-search fa-fw"></i>
+        
+        Search
+        </a>
+      </li>
+    
+  </ul>
+
+    
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="Searching..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://sluggishpj.github.io/blog/2019/10/23/auto-build-and-deploy-hexo-blog/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PJ">
+      <meta itemprop="description" content="B What U Wanna B">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PJ'S BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            自动化构建并部署hexo博客
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-10-23 10:08:24" itemprop="dateCreated datePublished" datetime="2019-10-23T10:08:24+00:00">2019-10-23</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-10-11 12:19:35" itemprop="dateModified" datetime="2021-10-11T12:19:35+00:00">2021-10-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/CI-CD/" itemprop="url" rel="index">
+                    <span itemprop="name">CI&CD</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>记录如何使用 travis-ci 自动化构建 hexo 博客并部署到 github pages。<br>最终效果：只需编写 markdown，然后推送到 github，之后会通过 travis-ci 自动化构建并部署到指定仓库的 github pages。</p>
+<a id="more"></a>
+
+<h2 id="前提条件"><a href="#前提条件" class="headerlink" title="前提条件"></a>前提条件</h2><ol>
+<li>install node.js</li>
+<li>install yarn</li>
+<li>install git</li>
+<li>install hexo</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install -g hexo</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>node.js, git 自行安装</p>
+</blockquote>
+<h2 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h2><h3 id="初始化操作"><a href="#初始化操作" class="headerlink" title="初始化操作"></a>初始化操作</h3><h4 id="初始化博客文件夹"><a href="#初始化博客文件夹" class="headerlink" title="初始化博客文件夹"></a>初始化博客文件夹</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo init blog</span><br></pre></td></tr></table></figure>
+
+<h4 id="将博客文件夹初始化-git-项目"><a href="#将博客文件夹初始化-git-项目" class="headerlink" title="将博客文件夹初始化 git 项目"></a>将博客文件夹初始化 git 项目</h4><ol>
+<li>初始化</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git init</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>添加目标远程仓库</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ git remote add origin git@github.com:sluggishpj/blog.git</span><br><span class="line">$ git push -u origin master</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>参考<a href="https://www.liaoxuefeng.com/wiki/896043488029600/898732864121440" target="_blank" rel="noopener">Git 教程</a></p>
+</blockquote>
+<h2 id="项目配置"><a href="#项目配置" class="headerlink" title="项目配置"></a>项目配置</h2><h3 id="初始化配置"><a href="#初始化配置" class="headerlink" title="初始化配置"></a>初始化配置</h3><p>按官网说明配置下根目录下的 _config.yml</p>
+<blockquote>
+<p>官网：<a href="https://hexo.io/zh-cn/docs/configuration" target="_blank" rel="noopener">https://hexo.io/zh-cn/docs/configuration</a><br>可对比参照<a href="https://github.com/sluggishpj/blog/blob/master/_config.yml" target="_blank" rel="noopener">本博客的_config.yml</a>，注意配置中的<code>主题配置</code>稍后会说明。</p>
+</blockquote>
+<h3 id="添加主题模块"><a href="#添加主题模块" class="headerlink" title="添加主题模块"></a>添加主题模块</h3><p>可以添加自己看上的的主题模块，这里使用 next 主题</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> themes\</span><br><span class="line">$ git submodule add https://github.com/theme-next/hexo-theme-next next</span><br></pre></td></tr></table></figure>
+
+<h4 id="为什么使用-git-submodule"><a href="#为什么使用-git-submodule" class="headerlink" title="为什么使用 git submodule"></a>为什么使用 git submodule</h4><ol>
+<li>主题是一个独立的仓库，本博客也是一个独立的项目。但是 git 项目里面不能直接包含另一个 git 项目，但是可以使用 submodule 达到同样的效果</li>
+<li>可根据需要更新主题仓库。如果把主题仓库复制过来，移除其<code>.git</code>文件夹，则不方便更新。</li>
+</ol>
+<h4 id="git-submodule-常用命令"><a href="#git-submodule-常用命令" class="headerlink" title="git submodule 常用命令"></a>git submodule 常用命令</h4><p>以下均在目标项目中操作，而不是在子模块目录中。</p>
+<ol>
+<li>添加子模块</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git submodule [--quiet] add [&lt;options&gt;] [--] &lt;repository&gt; [&lt;path&gt;]</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>clone 包含子模块的项目，需进行子模块的初始化</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ git submodule init</span><br><span class="line">$ git submodule update</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>更新子模块</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git submodule update --remote</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>git submodule 更多请参考：<a href="https://git-scm.com/book/zh/v2/Git-%E5%B7%A5%E5%85%B7-%E5%AD%90%E6%A8%A1%E5%9D%97" target="_blank" rel="noopener">Git 工具-子模块</a></p>
+</blockquote>
+<ol start="4">
+<li>删除子模块</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 逆初始化模块，其中&#123;MOD_NAME&#125;为模块目录，执行后可发现模块目录被清空</span></span><br><span class="line">$ git submodule deinit &#123;MOD_NAME&#125;</span><br><span class="line"><span class="comment"># 删除.gitmodules中记录的模块信息（--cached选项清除.git/modules中的缓存）</span></span><br><span class="line">$ git rm --cached &#123;MOD_NAME&#125;</span><br><span class="line"><span class="comment"># 提交更改到代码库，可观察到'.gitmodules'内容发生变更</span></span><br><span class="line">$ git commit -am <span class="string">"Remove a submodule."</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="新增博客所需功能"><a href="#新增博客所需功能" class="headerlink" title="新增博客所需功能"></a>新增博客所需功能</h3><p>这里新增搜索、评论、分类、标签</p>
+<h4 id="新增页面搜索"><a href="#新增页面搜索" class="headerlink" title="新增页面搜索"></a>新增页面搜索</h4><p>本博客使用 Local Search</p>
+<ol>
+<li>安装所需依赖</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yarn add hexo-generator-searchdb</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>配置根目录下的_config.yml，新增主题配置。内容是从 next/_config.yml 复制过来，修改 enable 为 true 而已。</li>
+</ol>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 主题配置</span></span><br><span class="line"><span class="attr">theme_config:</span></span><br><span class="line">  <span class="attr">local_search:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment"># If auto, trigger search by changing input.</span></span><br><span class="line">    <span class="comment"># If manual, trigger search by pressing enter key or search button.</span></span><br><span class="line">    <span class="attr">trigger:</span> <span class="string">auto</span></span><br><span class="line">    <span class="comment"># Show top n results per article, show all results by setting to -1</span></span><br><span class="line">    <span class="attr">top_n_per_article:</span> <span class="number">1</span></span><br><span class="line">    <span class="comment"># Unescape html strings to the readable one.</span></span><br><span class="line">    <span class="attr">unescape:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># Preload the search data when the page loads.</span></span><br><span class="line">    <span class="attr">preload:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="新增评论"><a href="#新增评论" class="headerlink" title="新增评论"></a>新增评论</h4><p>本博客使用 gitalk</p>
+<ol>
+<li><p>获取 client_id 和 client_secret。<a href="https://github.com/settings/applications/new" target="_blank" rel="noopener">点击新增一个 Github APP</a></p>
+</li>
+<li><p>新增完后保存 client_id 和 client_secret，下面的配置要用到。<br><img src="https://s2.ax1x.com/2019/10/23/KJ5IN8.png" alt="KJ5IN8.png"></p>
+</li>
+<li><p>修改项目根目录的_config.yml，在主题配置 theme_config 中新增 gitalk 相关配置，其实也是 next/_config.yml 中复制过来的，更改 enable 为 true 而已。</p>
+</li>
+</ol>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 主题配置</span></span><br><span class="line"><span class="attr">theme_config:</span></span><br><span class="line">  <span class="attr">local_search:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment"># If auto, trigger search by changing input.</span></span><br><span class="line">    <span class="comment"># If manual, trigger search by pressing enter key or search button.</span></span><br><span class="line">    <span class="attr">trigger:</span> <span class="string">auto</span></span><br><span class="line">    <span class="comment"># Show top n results per article, show all results by setting to -1</span></span><br><span class="line">    <span class="attr">top_n_per_article:</span> <span class="number">1</span></span><br><span class="line">    <span class="comment"># Unescape html strings to the readable one.</span></span><br><span class="line">    <span class="attr">unescape:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># Preload the search data when the page loads.</span></span><br><span class="line">    <span class="attr">preload:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">gitalk:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">github_id:</span> <span class="string">sluggishpj</span></span><br><span class="line">    <span class="attr">repo:</span> <span class="string">blog</span></span><br><span class="line">    <span class="attr">client_id:</span> <span class="string">dd946c3d0eb6bxxxxxxxx</span></span><br><span class="line">    <span class="attr">client_secret:</span> <span class="string">5051b237a867f9673700xxxxxxxx</span></span><br><span class="line">    <span class="attr">admin_user:</span> <span class="string">sluggishpj</span></span><br><span class="line">    <span class="attr">distraction_free_mode:</span> <span class="literal">true</span> <span class="comment"># Facebook-like distraction free mode</span></span><br><span class="line">    <span class="comment"># Gitalk's display language depends on user's browser or system environment</span></span><br><span class="line">    <span class="comment"># If you want everyone visiting your site to see a uniform language, you can set a force language value</span></span><br><span class="line">    <span class="comment"># Available values: en | es-ES | fr | ru | zh-CN | zh-TW</span></span><br><span class="line">    <span class="attr">language:</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="添加分类和标签"><a href="#添加分类和标签" class="headerlink" title="添加分类和标签"></a>添加分类和标签</h4><h5 id="创建分类和标签-page"><a href="#创建分类和标签-page" class="headerlink" title="创建分类和标签 page"></a>创建分类和标签 page</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new page categories</span><br><span class="line">$ hexo new page tags</span><br></pre></td></tr></table></figure>
+
+<p>此时会在 source 中出现 categories 和 tags 文件夹。<br>依次进修改 2 个文件夹中的 index.md。categories 中的 index.md 添加 type 字段，并设置为 categories；tags 中的 index.md 添加 type 字段，并设置为 tags。</p>
+<p>以下是 categories/index.md 的内容</p>
+<figure class="highlight md"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: categories</span><br><span class="line">date: 2019-10-13 20:38:19</span><br><span class="line">type: categories</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>以下是 tags/index.md 的内容</p>
+<figure class="highlight md"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: tags</span><br><span class="line">date: 2019-10-13 20:58:33</span><br><span class="line">type: tags</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<h5 id="修改根目录下的-config-yml，在主题配置-theme-config-中新增相关配置。其实也是从-next-config-yml-中复制过来的。"><a href="#修改根目录下的-config-yml，在主题配置-theme-config-中新增相关配置。其实也是从-next-config-yml-中复制过来的。" class="headerlink" title="修改根目录下的_config.yml，在主题配置 theme_config 中新增相关配置。其实也是从 next/_config.yml 中复制过来的。"></a>修改根目录下的_config.yml，在主题配置 theme_config 中新增相关配置。其实也是从 next/_config.yml 中复制过来的。</h5><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 主题配置</span></span><br><span class="line"><span class="attr">theme_config:</span></span><br><span class="line">  <span class="comment"># 本地搜索</span></span><br><span class="line">  <span class="attr">local_search:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment"># If auto, trigger search by changing input.</span></span><br><span class="line">    <span class="comment"># If manual, trigger search by pressing enter key or search button.</span></span><br><span class="line">    <span class="attr">trigger:</span> <span class="string">auto</span></span><br><span class="line">    <span class="comment"># Show top n results per article, show all results by setting to -1</span></span><br><span class="line">    <span class="attr">top_n_per_article:</span> <span class="number">1</span></span><br><span class="line">    <span class="comment"># Unescape html strings to the readable one.</span></span><br><span class="line">    <span class="attr">unescape:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># Preload the search data when the page loads.</span></span><br><span class="line">    <span class="attr">preload:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># 评论</span></span><br><span class="line">  <span class="attr">gitalk:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">github_id:</span> <span class="string">sluggishpj</span></span><br><span class="line">    <span class="attr">repo:</span> <span class="string">blog</span></span><br><span class="line">    <span class="attr">client_id:</span> <span class="string">dd946c3d0eb6bxxxxxxxx</span></span><br><span class="line">    <span class="attr">client_secret:</span> <span class="string">5051b237a867f9673700xxxxxxxx</span></span><br><span class="line">    <span class="attr">admin_user:</span> <span class="string">sluggishpj</span></span><br><span class="line">    <span class="attr">distraction_free_mode:</span> <span class="literal">true</span> <span class="comment"># Facebook-like distraction free mode</span></span><br><span class="line">    <span class="comment"># Gitalk's display language depends on user's browser or system environment</span></span><br><span class="line">    <span class="comment"># If you want everyone visiting your site to see a uniform language, you can set a force language value</span></span><br><span class="line">    <span class="comment"># Available values: en | es-ES | fr | ru | zh-CN | zh-TW</span></span><br><span class="line">    <span class="attr">language:</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># 添加分类和标签</span></span><br><span class="line">  <span class="attr">menu:</span></span><br><span class="line">    <span class="attr">home:</span> <span class="string">/</span> <span class="string">||</span> <span class="string">home</span></span><br><span class="line">    <span class="comment">#about: /about/ || user</span></span><br><span class="line">    <span class="attr">tags:</span> <span class="string">/tags/</span> <span class="string">||</span> <span class="string">tags</span></span><br><span class="line">    <span class="attr">categories:</span> <span class="string">/categories/</span> <span class="string">||</span> <span class="string">th</span></span><br><span class="line">    <span class="attr">archives:</span> <span class="string">/archives/</span> <span class="string">||</span> <span class="string">archive</span></span><br><span class="line">    <span class="comment">#schedule: /schedule/ || calendar</span></span><br><span class="line">    <span class="comment">#sitemap: /sitemap.xml || sitemap</span></span><br><span class="line">    <span class="comment">#commonweal: /404/ || heartbeat</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>到此可以先将项目 push 到 github 上，之后配置自动化构建及部署</p>
+</blockquote>
+<h3 id="自动化构建及部署"><a href="#自动化构建及部署" class="headerlink" title="自动化构建及部署"></a>自动化构建及部署</h3><h4 id="接入-Travis-ci"><a href="#接入-Travis-ci" class="headerlink" title="接入 Travis-ci"></a>接入 Travis-ci</h4><ol>
+<li>使用 github 账户进行注册：<a href="https://travis-ci.org/" target="_blank" rel="noopener">https://travis-ci.org</a></li>
+<li>在 github 新增一个 access token，并保存在你看得到的地方：<a href="https://github.com/settings/tokens" target="_blank" rel="noopener">https://github.com/settings/tokens</a><br><img src="https://s2.ax1x.com/2019/10/23/KJqORf.png" alt="KJqORf.png"></li>
+<li>在 travis-ci 中对应的博客项目配置该 token。下方.travis.yml 中的<code>$GITHUB_TOKEN</code>引用的就是刚配置的变量<code>GITHUB_TOKEN</code><br><img src="https://s2.ax1x.com/2019/10/23/KJLKoR.png" alt="KJLKoR.png"></li>
+</ol>
+<h4 id="新增-travis-yml-配置文件"><a href="#新增-travis-yml-配置文件" class="headerlink" title="新增.travis.yml 配置文件"></a>新增.travis.yml 配置文件</h4><p>在项目根目录下新增.travis.yml</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">language:</span> <span class="string">node_js</span></span><br><span class="line"><span class="attr">node_js:</span> <span class="string">stable</span></span><br><span class="line"><span class="attr">sudo:</span> <span class="string">required</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 构建的分支</span></span><br><span class="line"><span class="attr">branches:</span></span><br><span class="line">  <span class="attr">only:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">master</span></span><br><span class="line"></span><br><span class="line"><span class="attr">before_install:</span></span><br><span class="line">  <span class="comment"># Repo for Yarn</span></span><br><span class="line">  <span class="comment"># RF：https://yarnpkg.com/lang/en/docs/install-ci/</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">sudo</span> <span class="string">apt-key</span> <span class="string">adv</span> <span class="string">--fetch-keys</span> <span class="string">http://dl.yarnpkg.com/debian/pubkey.gpg</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">echo</span> <span class="string">"deb http://dl.yarnpkg.com/debian/ stable main"</span> <span class="string">|</span> <span class="string">sudo</span> <span class="string">tee</span> <span class="string">/etc/apt/sources.list.d/yarn.list</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">sudo</span> <span class="string">apt-get</span> <span class="string">update</span> <span class="string">-qq</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">sudo</span> <span class="string">apt-get</span> <span class="string">install</span> <span class="string">-y</span> <span class="string">-qq</span> <span class="string">yarn</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># 安装对应版本的 theme next</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">git</span> <span class="string">submodule</span> <span class="string">update</span> <span class="string">--init</span></span><br><span class="line"></span><br><span class="line"><span class="attr">install:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">yarn</span> <span class="string">install</span></span><br><span class="line"></span><br><span class="line"><span class="attr">script:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">hexo</span> <span class="string">g</span></span><br><span class="line"></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">provider:</span> <span class="string">pages</span></span><br><span class="line">  <span class="attr">skip-cleanup:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">github-token:</span> <span class="string">$GITHUB_TOKEN</span></span><br><span class="line">  <span class="attr">local-dir:</span> <span class="string">public</span></span><br><span class="line">  <span class="attr">target-branch:</span> <span class="string">gh-pages</span></span><br><span class="line">  <span class="attr">keep-history:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">on:</span></span><br><span class="line">    <span class="attr">branch:</span> <span class="string">master</span></span><br><span class="line"></span><br><span class="line"><span class="attr">cache:</span></span><br><span class="line">  <span class="attr">yarn:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>push 到 github 上，完毕</p>
+</blockquote>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><blockquote>
+<p><a href="https://www.jianshu.com/p/ed0cb6c75e25" target="_blank" rel="noopener">简书-删除子模块</a> &gt; <a href="https://git-scm.com/book/zh/v2/Git-%E5%B7%A5%E5%85%B7-%E5%AD%90%E6%A8%A1%E5%9D%97" target="_blank" rel="noopener">Git 工具-子模块</a> &gt; <a href="https://troyyang.com/2017/06/24/Travis_Auto_Build_Deploy_Github_Projects/" target="_blank" rel="noopener">Travis-ci 自动编译部署 github 上的项目</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/blog/tags/travis/" rel="tag"># travis</a>
+            
+              <a href="/blog/tags/ci/" rel="tag"># ci</a>
+            
+              <a href="/blog/tags/hexo/" rel="tag"># hexo</a>
+            
+              <a href="/blog/tags/git-submodule/" rel="tag"># git submodule</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/blog/2018/12/26/es2018/" rel="next" title="ES2018">
+                  <i class="fa fa-chevron-left"></i> ES2018
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/blog/2019/10/28/es2019/" rel="prev" title="es2019">
+                  es2019 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="gitalk-container"></div>
+  
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说明"><span class="nav-number">1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#前提条件"><span class="nav-number">2.</span> <span class="nav-text">前提条件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#流程"><span class="nav-number">3.</span> <span class="nav-text">流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化操作"><span class="nav-number">3.1.</span> <span class="nav-text">初始化操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#初始化博客文件夹"><span class="nav-number">3.1.1.</span> <span class="nav-text">初始化博客文件夹</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将博客文件夹初始化-git-项目"><span class="nav-number">3.1.2.</span> <span class="nav-text">将博客文件夹初始化 git 项目</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#项目配置"><span class="nav-number">4.</span> <span class="nav-text">项目配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化配置"><span class="nav-number">4.1.</span> <span class="nav-text">初始化配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加主题模块"><span class="nav-number">4.2.</span> <span class="nav-text">添加主题模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么使用-git-submodule"><span class="nav-number">4.2.1.</span> <span class="nav-text">为什么使用 git submodule</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#git-submodule-常用命令"><span class="nav-number">4.2.2.</span> <span class="nav-text">git submodule 常用命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#新增博客所需功能"><span class="nav-number">4.3.</span> <span class="nav-text">新增博客所需功能</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#新增页面搜索"><span class="nav-number">4.3.1.</span> <span class="nav-text">新增页面搜索</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新增评论"><span class="nav-number">4.3.2.</span> <span class="nav-text">新增评论</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#添加分类和标签"><span class="nav-number">4.3.3.</span> <span class="nav-text">添加分类和标签</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#创建分类和标签-page"><span class="nav-number">4.3.3.1.</span> <span class="nav-text">创建分类和标签 page</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#修改根目录下的-config-yml，在主题配置-theme-config-中新增相关配置。其实也是从-next-config-yml-中复制过来的。"><span class="nav-number">4.3.3.2.</span> <span class="nav-text">修改根目录下的_config.yml，在主题配置 theme_config 中新增相关配置。其实也是从 next&#x2F;_config.yml 中复制过来的。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自动化构建及部署"><span class="nav-number">4.4.</span> <span class="nav-text">自动化构建及部署</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#接入-Travis-ci"><span class="nav-number">4.4.1.</span> <span class="nav-text">接入 Travis-ci</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新增-travis-yml-配置文件"><span class="nav-number">4.4.2.</span> <span class="nav-text">新增.travis.yml 配置文件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文章"><span class="nav-number">5.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">PJ</p>
+  <div class="site-description" itemprop="description">B What U Wanna B</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/blog/archives/%20%7C%7C%20archive">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/blog/categories/%20%7C%7C%20th">
+          
+        
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/blog/tags/%20%7C%7C%20tags">
+          
+        
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PJ</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.1
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+<script src="/blog/js/utils.js?v=7.4.1.js"></script>
+
+<script src="/blog/js/motion.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/next-boot.js?v=7.4.1.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+<script src="/blog/js/local-search.js?v=7.4.1.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'dd946c3d0eb6bc5aaf24',
+      clientSecret: '5051b237a867f9673700aaef753148bd6fc17d34',
+      repo: 'blog',
+      owner: 'sluggishpj',
+      admin: ['sluggishpj'],
+      id: '0159521772cec9c62d70148fff3f0a77',
+        language: window.navigator.language || window.navigator.userLanguage,
+      
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

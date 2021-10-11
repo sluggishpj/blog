@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Muse',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":true},
+    copycode: {"enable":true,"show_result":true,"style":"mac"},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="实例化和原型对象实例化协调引用JavaScript中的每个对象，都有一个名为constructor的隐式属性，该属性引用的是创建该对象的构造器，由于prototype是构造器的一个属性，所以每个对象都有一种方式可以找到自己的原型。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScript忍者秘籍笔记06之原型与面向对象">
+<meta property="og:url" content="https://sluggishpj.github.io/2017/10/30/secrets-of-the-js-ninja-6-prototype-and-oop/index.html">
+<meta property="og:site_name" content="PJ&#39;S BLOG">
+<meta property="og:description" content="实例化和原型对象实例化协调引用JavaScript中的每个对象，都有一个名为constructor的隐式属性，该属性引用的是创建该对象的构造器，由于prototype是构造器的一个属性，所以每个对象都有一种方式可以找到自己的原型。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-10-30T00:00:57.000Z">
+<meta property="article:modified_time" content="2021-10-11T12:19:35.050Z">
+<meta property="article:author" content="PJ">
+<meta property="article:tag" content="js">
+<meta property="article:tag" content="对象">
+<meta property="article:tag" content="原型">
+<meta property="article:tag" content="js忍者秘籍">
+<meta name="twitter:card" content="summary">
+  <link rel="canonical" href="https://sluggishpj.github.io/2017/10/30/secrets-of-the-js-ninja-6-prototype-and-oop/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>JavaScript忍者秘籍笔记06之原型与面向对象 | PJ'S BLOG</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PJ'S BLOG</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/blog/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+        
+          <i class="fa fa-search fa-fw"></i>
+        
+        Search
+        </a>
+      </li>
+    
+  </ul>
+
+    
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="Searching..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://sluggishpj.github.io/blog/2017/10/30/secrets-of-the-js-ninja-6-prototype-and-oop/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PJ">
+      <meta itemprop="description" content="B What U Wanna B">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PJ'S BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            JavaScript忍者秘籍笔记06之原型与面向对象
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2017-10-30 00:00:57" itemprop="dateCreated datePublished" datetime="2017-10-30T00:00:57+00:00">2017-10-30</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-10-11 12:19:35" itemprop="dateModified" datetime="2021-10-11T12:19:35+00:00">2021-10-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/js/" itemprop="url" rel="index">
+                    <span itemprop="name">js</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/js/js%E5%BF%8D%E8%80%85%E7%A7%98%E7%B1%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">js忍者秘籍</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="实例化和原型"><a href="#实例化和原型" class="headerlink" title="实例化和原型"></a>实例化和原型</h2><h3 id="对象实例化"><a href="#对象实例化" class="headerlink" title="对象实例化"></a>对象实例化</h3><h4 id="协调引用"><a href="#协调引用" class="headerlink" title="协调引用"></a>协调引用</h4><p>JavaScript中的每个对象，都有一个名为constructor的隐式属性，该属性引用的是创建该对象的构造器，由于prototype是构造器的一个属性，所以每个对象都有一种方式可以找到自己的原型。</p>
+<a id="more"></a>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Ninja</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.swung = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">this</span>.swingSword = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> !<span class="keyword">this</span>.swung;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line">Ninja.prototype.swingSword = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.swung;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> ninja = <span class="keyword">new</span> Ninja();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 控制台</span></span><br><span class="line">&gt; ninja.swingSword</span><br><span class="line">ƒ () &#123;</span><br><span class="line">        <span class="keyword">return</span> !<span class="keyword">this</span>.swung;</span><br><span class="line">    &#125;</span><br><span class="line">&gt; ninja.__proto__.swingSword</span><br><span class="line">ƒ () &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.swung;</span><br><span class="line">&#125;</span><br><span class="line">&gt; ninja.constructor.prototype.swingSword</span><br><span class="line">ƒ () &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.swung;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="通过构造器判断对象类型"><a href="#通过构造器判断对象类型" class="headerlink" title="通过构造器判断对象类型"></a>通过构造器判断对象类型</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Ninja</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"><span class="keyword">var</span> ninja = <span class="keyword">new</span> Ninja();</span><br><span class="line"><span class="built_in">console</span>.log(ninja <span class="keyword">instanceof</span> Ninja); <span class="comment">// true</span></span><br><span class="line"><span class="built_in">console</span>.log(ninja.constructor == Ninja); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> ninja2 = <span class="keyword">new</span> ninja.constructor();</span><br><span class="line"><span class="built_in">console</span>.log(ninja2 <span class="keyword">instanceof</span> Ninja); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>不用知道原有的构造器函数也可以再次创建一个新实例，即便是原始的构造器在作用域内已经不存在了，也可以使用该引用。</p>
+</blockquote>
+<h3 id="继承与原型链"><a href="#继承与原型链" class="headerlink" title="继承与原型链"></a>继承与原型链</h3><p>实现继承的最好方式，使用一个对象的实例作为另一个对象的原型：<br><code>SubClass.prototype = new SuperClass();</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Person</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line">Person.prototype.dance = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Ninja</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">Ninja.prototype = <span class="keyword">new</span> Person(); <span class="comment">// 继承</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> ninja = <span class="keyword">new</span> Ninja();</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(ninja <span class="keyword">instanceof</span> Ninja); <span class="comment">// true</span></span><br><span class="line"><span class="built_in">console</span>.log(ninja <span class="keyword">instanceof</span> Person); <span class="comment">// true</span></span><br><span class="line"><span class="built_in">console</span>.log(ninja <span class="keyword">instanceof</span> <span class="built_in">Object</span>); <span class="comment">// true</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="keyword">typeof</span> ninja.dance == <span class="string">"function"</span>); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>所有的内置对象，比如Array，包括其原型，都可以扩展它们，但不建议在原始对象上引入新的属性或方法，因为原生对象的原型只有一个实例，可能发生命名冲突</p>
+</blockquote>
+<h3 id="HTML-DOM原型"><a href="#HTML-DOM原型" class="headerlink" title="HTML DOM原型"></a>HTML DOM原型</h3><p>所有的DOM元素都继承于HTMLElement构造器，通过访问HTMLElement的原型，可以提供扩展任意HTML节点的能力。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"parent"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"a"</span>&gt;</span>I'm going to be removed.<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"b"</span>&gt;</span>Me too!<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="actionscript">    HTMLElement.prototype.remove = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>&#123;</span></span><br><span class="line"><span class="actionscript">        <span class="keyword">if</span> (<span class="keyword">this</span>.parentNode)</span></span><br><span class="line"><span class="actionscript">            <span class="keyword">this</span>.parentNode.removeChild(<span class="keyword">this</span>);</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line"><span class="javascript">    <span class="keyword">var</span> a = <span class="built_in">document</span>.getElementById(<span class="string">"a"</span>);</span></span><br><span class="line">    a.parentNode.removeChild(a);</span><br><span class="line"></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">"b"</span>).remove();</span></span><br><span class="line"></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(!<span class="built_in">document</span>.getElementById(<span class="string">"a"</span>)); <span class="comment">// true</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(!<span class="built_in">document</span>.getElementById(<span class="string">"b"</span>)); <span class="comment">// true</span></span></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>处理HTMLElement原型时，不能在IE8之前的版本使用</p>
+</blockquote>
+<h3 id="扩展数字"><a href="#扩展数字" class="headerlink" title="扩展数字"></a>扩展数字</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Number</span>.prototype.add = <span class="function"><span class="keyword">function</span>(<span class="params">num</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span> + num;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> n = <span class="number">5</span>;</span><br><span class="line"><span class="built_in">console</span>.log(n.add(<span class="number">3</span>) == <span class="number">8</span>); <span class="comment">// true</span></span><br><span class="line"><span class="built_in">console</span>.log((<span class="number">5</span>).add(<span class="number">3</span>) == <span class="number">8</span>); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 报错</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="number">5.</span>add(<span class="number">3</span>) == <span class="number">8</span>);</span><br><span class="line">            ^^</span><br><span class="line"><span class="built_in">SyntaxError</span>: Invalid or unexpected token</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>报错原因，语法解析器不能处理字面量这种情况，最好避免在Number的原型做扩展</p>
+</blockquote>
+<h3 id="实例化问题"><a href="#实例化问题" class="headerlink" title="实例化问题"></a>实例化问题</h3><h4 id="判断函数是否是作为构造器进行调用的"><a href="#判断函数是否是作为构造器进行调用的" class="headerlink" title="判断函数是否是作为构造器进行调用的"></a>判断函数是否是作为构造器进行调用的</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Test</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span> <span class="keyword">instanceof</span> <span class="built_in">arguments</span>.callee;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(Test()); <span class="comment">// false</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="keyword">new</span> Test()); <span class="comment">// Test &#123;&#125;</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<ul>
+<li>通过arguments.callee可以得到当前执行函数的引用。</li>
+<li>“普通”函数的上下文默认是全局作用域。</li>
+<li>利用instanceof操作符测试已构建对象是否构建于指定的构造器。</li>
+</ul>
+</blockquote>
+<h4 id="在调用者上修复该问题"><a href="#在调用者上修复该问题" class="headerlink" title="在调用者上修复该问题"></a>在调用者上修复该问题</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">User</span>(<span class="params">first, last</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 如果不按正确方法进行调用，则修复这个错误</span></span><br><span class="line">    <span class="keyword">if</span> (!(<span class="keyword">this</span> <span class="keyword">instanceof</span> <span class="built_in">arguments</span>.callee)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> User(first, last);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.name = first + <span class="string">''</span> + last;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> xiaoming = <span class="keyword">new</span> User(<span class="string">'小'</span>, <span class="string">'明'</span>);</span><br><span class="line"><span class="built_in">console</span>.log(xiaoming.name); <span class="comment">// 小明</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> xiaohong = User(<span class="string">'小'</span>, <span class="string">'红'</span>);</span><br><span class="line"><span class="built_in">console</span>.log(xiaohong.name); <span class="comment">// 小红</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>arguments.callee严格模式下禁用！更通用的方法如下：（摘自Effective JavaScript）</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">User</span>(<span class="params">first, last</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!(<span class="keyword">this</span> <span class="keyword">instanceof</span> User)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> User(first, last);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.name = first + <span class="string">''</span> + last;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> xiaoming = <span class="keyword">new</span> User(<span class="string">'小'</span>, <span class="string">'明'</span>);</span><br><span class="line"><span class="built_in">console</span>.log(xiaoming.name); <span class="comment">// 小明</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> xiaohong = User(<span class="string">'小'</span>, <span class="string">'红'</span>);</span><br><span class="line"><span class="built_in">console</span>.log(xiaohong.name); <span class="comment">// 小红</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="编写类风格的代码"><a href="#编写类风格的代码" class="headerlink" title="编写类风格的代码"></a>编写类风格的代码</h2><h3 id="检测函数是否可序列化"><a href="#检测函数是否可序列化" class="headerlink" title="检测函数是否可序列化"></a>检测函数是否可序列化</h3><p>函数序列化（function serialization）就是简单接收一个函数，然后返回该函数的源码文本。可以用这种方法检查一个函数在某一个对象中是否存在引用。在大多数浏览器中，序列化会导致函数的toString()方法会被调用。可以使用如下表达式测试一个函数是否能够被序列化。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/xyz/.test(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;xyz;&#125;); <span class="comment">// 返回true（能序列化）或false（反之）</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="子类方法"><a href="#子类方法" class="headerlink" title="子类方法"></a>子类方法</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实现</span></span><br><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> initializing = <span class="literal">false</span>,</span><br><span class="line">        superPattern =</span><br><span class="line">        /xyz/.test(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; xyz; &#125;) ? <span class="regexp">/\b_super\b/</span> : <span class="regexp">/.*/</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">Object</span>.subClass = <span class="function"><span class="keyword">function</span>(<span class="params">properties</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> _super = <span class="keyword">this</span>.prototype;</span><br><span class="line"></span><br><span class="line">        initializing = <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">var</span> proto = <span class="keyword">new</span> <span class="keyword">this</span>();</span><br><span class="line">        initializing = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> name <span class="keyword">in</span> properties) &#123;</span><br><span class="line">            proto[name] = <span class="keyword">typeof</span> properties[name] == <span class="string">"function"</span> &amp;&amp;</span><br><span class="line">                <span class="keyword">typeof</span> _super[name] == <span class="string">"function"</span> &amp;&amp;</span><br><span class="line">                superPattern.test(properties[name]) ?</span><br><span class="line">                (<span class="function"><span class="keyword">function</span>(<span class="params">name, fn</span>) </span>&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">                        <span class="keyword">var</span> tmp = <span class="keyword">this</span>._super; <span class="comment">// this引用的是当前的子类实例</span></span><br><span class="line">                        <span class="keyword">this</span>._super = _super[name];</span><br><span class="line">                        <span class="keyword">var</span> ret = fn.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line">                        <span class="keyword">this</span>._super = tmp;</span><br><span class="line">                        <span class="keyword">return</span> ret;</span><br><span class="line">                    &#125;;</span><br><span class="line">                &#125;)(name, properties[name]) :</span><br><span class="line">                properties[name];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">Class</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="comment">// All construction is actually done in the init method</span></span><br><span class="line">            <span class="keyword">if</span> (!initializing &amp;&amp; <span class="keyword">this</span>.init) &#123;</span><br><span class="line">                <span class="keyword">this</span>.init.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        Class.prototype = proto;</span><br><span class="line">        Class.constructor = Class;</span><br><span class="line">        Class.subClass = <span class="built_in">arguments</span>.callee;</span><br><span class="line">        <span class="keyword">return</span> Class;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>for…in 循环中的个人理解：</p>
+<ol>
+<li>要继承的属性是方法: <code>typeof properties[name] == &quot;function&quot;</code></li>
+<li>自己的原型链中有同名方法: <code>typeof _super[name] == &quot;function&quot;</code></li>
+<li>要继承的属性（方法）中含有<code>_super</code>字符串: <code>superPattern.test(properties[name])</code></li>
+<li>若不能同时满足1,2,3点，则将要继承的属性作为自己实例的一个同名属性</li>
+<li>若同时满足1,2,3点，则返回一个新的函数，该函数中调用了要继承的属性（方法），并返回调用的结果。</li>
+</ol>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="keyword">var</span> Person = <span class="built_in">Object</span>.subClass(&#123;</span><br><span class="line">    init: <span class="function"><span class="keyword">function</span>(<span class="params">isDancing</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.dancing = isDancing;</span><br><span class="line">    &#125;,</span><br><span class="line">    dance: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.dancing;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> Ninja = Person.subClass(&#123;</span><br><span class="line">    init: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>._super(<span class="literal">false</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    dance: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="comment">// Ninja-specific stuff here</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._super();</span><br><span class="line">    &#125;,</span><br><span class="line">    swingSword: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> person = <span class="keyword">new</span> Person(<span class="literal">true</span>);</span><br><span class="line"><span class="built_in">console</span>.log(person.dance()); <span class="comment">// true</span></span><br><span class="line"><span class="built_in">console</span>.log(person <span class="keyword">instanceof</span> Person); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> ninja = <span class="keyword">new</span> Ninja();</span><br><span class="line"><span class="built_in">console</span>.log(ninja.swingSword()); <span class="comment">// true</span></span><br><span class="line"><span class="built_in">console</span>.log(ninja.dance()); <span class="comment">// false</span></span><br><span class="line"><span class="built_in">console</span>.log(ninja <span class="keyword">instanceof</span> Ninja &amp;&amp; ninja <span class="keyword">instanceof</span> Person); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="ES6继承"><a href="#ES6继承" class="headerlink" title="ES6继承"></a>ES6继承</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Animal</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 构造方法</span></span><br><span class="line">    <span class="keyword">constructor</span>(name) &#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 静态方法，只能透过类名调用</span></span><br><span class="line">    <span class="keyword">static</span> animalStaticMethod() &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">'animal static method'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 实例方法，只能通过实例对象调用</span></span><br><span class="line">    sayHi() &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">'sayHi, I am animal '</span> + <span class="keyword">this</span>.name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">People</span> <span class="keyword">extends</span> <span class="title">Animal</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(name, gender) &#123;</span><br><span class="line">        <span class="keyword">super</span>(name); <span class="comment">// 调用父类的constructor(name)</span></span><br><span class="line">        <span class="keyword">this</span>.gender = gender;</span><br><span class="line">    &#125;</span><br><span class="line">    sayHello() &#123;</span><br><span class="line">        <span class="keyword">super</span>.sayHi(); <span class="comment">// 调用父类的sayHi()</span></span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">'sayHello, I am a '</span> + <span class="keyword">this</span>.gender);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Animal.animalStaticMethod(); <span class="comment">// animal static method</span></span><br><span class="line"><span class="comment">// 继承父类静态方法</span></span><br><span class="line">People.animalStaticMethod(); <span class="comment">// animal static method</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> dog = <span class="keyword">new</span> Animal(<span class="string">'旺旺'</span>);</span><br><span class="line">dog.sayHi(); <span class="comment">// sayHi, I am  animal 旺旺</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> xiaoming = <span class="keyword">new</span> People(<span class="string">'小明'</span>, <span class="string">'boy'</span>);</span><br><span class="line">xiaoming.sayHi(); <span class="comment">// sayHi, I am animal 小明</span></span><br><span class="line">xiaoming.sayHello(); <span class="comment">// sayHi, I am animal 小明</span></span><br><span class="line">                     <span class="comment">// sayHello, I am a boy</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>参考自：<a href="http://es6.ruanyifeng.com/#docs/class-extends" target="_blank" rel="noopener">http://es6.ruanyifeng.com/#docs/class-extends</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/blog/tags/js/" rel="tag"># js</a>
+            
+              <a href="/blog/tags/%E5%AF%B9%E8%B1%A1/" rel="tag"># 对象</a>
+            
+              <a href="/blog/tags/%E5%8E%9F%E5%9E%8B/" rel="tag"># 原型</a>
+            
+              <a href="/blog/tags/js%E5%BF%8D%E8%80%85%E7%A7%98%E7%B1%8D/" rel="tag"># js忍者秘籍</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/blog/2017/10/28/secrets-of-the-js-ninja-5-cross-browser-strategies/" rel="next" title="JavaScript忍者秘籍笔记05之跨浏览器策略">
+                  <i class="fa fa-chevron-left"></i> JavaScript忍者秘籍笔记05之跨浏览器策略
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/blog/2017/11/02/effective-js-1-accustoming-yourself-to-js/" rel="prev" title="EffectiveJS笔记01之让自己习惯JavaScript">
+                  EffectiveJS笔记01之让自己习惯JavaScript <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="gitalk-container"></div>
+  
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#实例化和原型"><span class="nav-number">1.</span> <span class="nav-text">实例化和原型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#对象实例化"><span class="nav-number">1.1.</span> <span class="nav-text">对象实例化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#协调引用"><span class="nav-number">1.1.1.</span> <span class="nav-text">协调引用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过构造器判断对象类型"><span class="nav-number">1.2.</span> <span class="nav-text">通过构造器判断对象类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#继承与原型链"><span class="nav-number">1.3.</span> <span class="nav-text">继承与原型链</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTML-DOM原型"><span class="nav-number">1.4.</span> <span class="nav-text">HTML DOM原型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#扩展数字"><span class="nav-number">1.5.</span> <span class="nav-text">扩展数字</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实例化问题"><span class="nav-number">1.6.</span> <span class="nav-text">实例化问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#判断函数是否是作为构造器进行调用的"><span class="nav-number">1.6.1.</span> <span class="nav-text">判断函数是否是作为构造器进行调用的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在调用者上修复该问题"><span class="nav-number">1.6.2.</span> <span class="nav-text">在调用者上修复该问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编写类风格的代码"><span class="nav-number">2.</span> <span class="nav-text">编写类风格的代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#检测函数是否可序列化"><span class="nav-number">2.1.</span> <span class="nav-text">检测函数是否可序列化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#子类方法"><span class="nav-number">2.2.</span> <span class="nav-text">子类方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ES6继承"><span class="nav-number">2.3.</span> <span class="nav-text">ES6继承</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">PJ</p>
+  <div class="site-description" itemprop="description">B What U Wanna B</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/blog/archives/%20%7C%7C%20archive">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/blog/categories/%20%7C%7C%20th">
+          
+        
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/blog/tags/%20%7C%7C%20tags">
+          
+        
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PJ</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.1
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+<script src="/blog/js/utils.js?v=7.4.1.js"></script>
+
+<script src="/blog/js/motion.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/next-boot.js?v=7.4.1.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+<script src="/blog/js/local-search.js?v=7.4.1.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'dd946c3d0eb6bc5aaf24',
+      clientSecret: '5051b237a867f9673700aaef753148bd6fc17d34',
+      repo: 'blog',
+      owner: 'sluggishpj',
+      admin: ['sluggishpj'],
+      id: '9895b3a5057fc850febc29f26dc4f6ff',
+        language: window.navigator.language || window.navigator.userLanguage,
+      
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

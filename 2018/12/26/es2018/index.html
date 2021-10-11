@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Muse',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":true},
+    copycode: {"enable":true,"show_result":true,"style":"mac"},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="说明记录 ES2018 相关知识">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ES2018">
+<meta property="og:url" content="https://sluggishpj.github.io/2018/12/26/es2018/index.html">
+<meta property="og:site_name" content="PJ&#39;S BLOG">
+<meta property="og:description" content="说明记录 ES2018 相关知识">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-12-26T17:43:22.000Z">
+<meta property="article:modified_time" content="2021-10-11T12:19:35.050Z">
+<meta property="article:author" content="PJ">
+<meta property="article:tag" content="js">
+<meta property="article:tag" content="es2018">
+<meta name="twitter:card" content="summary">
+  <link rel="canonical" href="https://sluggishpj.github.io/2018/12/26/es2018/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>ES2018 | PJ'S BLOG</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PJ'S BLOG</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/blog/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+        
+          <i class="fa fa-search fa-fw"></i>
+        
+        Search
+        </a>
+      </li>
+    
+  </ul>
+
+    
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="Searching..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://sluggishpj.github.io/blog/2018/12/26/es2018/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PJ">
+      <meta itemprop="description" content="B What U Wanna B">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PJ'S BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            ES2018
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2018-12-26 17:43:22" itemprop="dateCreated datePublished" datetime="2018-12-26T17:43:22+00:00">2018-12-26</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-10-11 12:19:35" itemprop="dateModified" datetime="2021-10-11T12:19:35+00:00">2021-10-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/js/" itemprop="url" rel="index">
+                    <span itemprop="name">js</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/js/es2018/" itemprop="url" rel="index">
+                    <span itemprop="name">es2018</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>记录 ES2018 相关知识</p>
+<a id="more"></a>
+
+<h2 id="异步迭代"><a href="#异步迭代" class="headerlink" title="异步迭代"></a>异步迭代</h2><ul>
+<li>通过 <code>Symbol.asyncIterator</code> 访问内建的迭代器</li>
+<li>方法 <code>next()</code> 返回的是 Promise</li>
+</ul>
+<ul>
+<li>统一定义 wait 函数，下面用到</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">wait</span>(<span class="params">sec</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      resolve(sec)</span><br><span class="line">    &#125;, sec * <span class="number">1000</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="for-await…of"><a href="#for-await…of" class="headerlink" title="for await…of"></a>for await…of</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">doFun</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> <span class="keyword">await</span> (<span class="keyword">const</span> res <span class="keyword">of</span> [wait(<span class="number">2</span>), wait(<span class="number">4</span>)]) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(res)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">doFun()</span><br><span class="line"><span class="comment">// 2s 后输出</span></span><br><span class="line"><span class="comment">// 2</span></span><br><span class="line"><span class="comment">// 4s 后输出</span></span><br><span class="line"><span class="comment">// 4</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li><code>for-await-of</code> 不能在模块最顶层使用，同 await 要在 async 函数内使用</li>
+</ul>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">doFun2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> <span class="keyword">await</span> (<span class="keyword">const</span> res <span class="keyword">of</span> [wait(<span class="number">4</span>), wait(<span class="number">2</span>)]) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(res)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">doFun2()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4s 后输出</span></span><br><span class="line"><span class="comment">// 4</span></span><br><span class="line"><span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">doFun3</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> x <span class="keyword">of</span> <span class="keyword">await</span> <span class="built_in">Promise</span>.all([wait(<span class="number">2</span>), wait(<span class="number">4</span>)])) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(x)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">doFun3()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 过 4s 后输出</span></span><br><span class="line"><span class="comment">// 2</span></span><br><span class="line"><span class="comment">// 4</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="异步-generator-函数"><a href="#异步-generator-函数" class="headerlink" title="异步 generator 函数"></a>异步 generator 函数</h3><ul>
+<li>异步 Generator 函数的返回值是一个异步 Iterator，即每次调用它的 <code>next</code> 方法，会返回一个 Promise 对象</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span>* <span class="title">asyncGenerator</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Start'</span>)</span><br><span class="line">  <span class="keyword">const</span> result = <span class="keyword">await</span> wait(<span class="number">2</span>) <span class="comment">// (A)</span></span><br><span class="line">  <span class="keyword">yield</span> <span class="string">'Result: '</span> + result <span class="comment">// (B)</span></span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Done'</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ag = asyncGenerator()</span><br><span class="line">ag.next().then(<span class="function">(<span class="params">&#123; value, done &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(value)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Start</span></span><br><span class="line"><span class="comment">// 2s 后继续输出</span></span><br><span class="line"><span class="comment">// Result: 2</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="抛出错误"><a href="#抛出错误" class="headerlink" title="抛出错误"></a>抛出错误</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span>* <span class="title">asyncGenerator</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// The following exception is converted to a rejection</span></span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Problem!'</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">asyncGenerator()</span><br><span class="line">  .next()</span><br><span class="line">  .catch(<span class="function"><span class="params">err</span> =&gt;</span> <span class="built_in">console</span>.log(err)) <span class="comment">// Error: Problem!</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="解构"><a href="#解构" class="headerlink" title="解构"></a>解构</h2><h3 id="rest-与对象解构"><a href="#rest-与对象解构" class="headerlink" title="rest 与对象解构"></a>rest 与对象解构</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">foo</span>: <span class="number">1</span>, <span class="attr">bar</span>: <span class="number">2</span>, <span class="attr">baz</span>: <span class="number">3</span> &#125;</span><br><span class="line"><span class="keyword">const</span> &#123; foo, ...rest &#125; = obj</span><br><span class="line"><span class="built_in">console</span>.log(rest) <span class="comment">// &#123; bar: 2, baz: 3 &#125;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123;</span><br><span class="line">  foo: &#123;</span><br><span class="line">    a: <span class="number">1</span>,</span><br><span class="line">    b: <span class="number">2</span>,</span><br><span class="line">    c: <span class="number">3</span></span><br><span class="line">  &#125;,</span><br><span class="line">  bar: <span class="number">4</span>,</span><br><span class="line">  baz: <span class="number">5</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> &#123;</span><br><span class="line">  foo: &#123; a, ...rest1 &#125;,</span><br><span class="line">  ...rest2</span><br><span class="line">&#125; = obj</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(rest1) <span class="comment">// &#123; b: 2, c: 3 &#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(rest2) <span class="comment">// &#123; bar: 4, baz: 5 &#125;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>错误情况</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; ...rest, foo &#125; = obj <span class="comment">// SyntaxError</span></span><br><span class="line"><span class="keyword">const</span> &#123; foo, ...rest1, ...rest2 &#125; = obj <span class="comment">// SyntaxError</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="对象解构-vs-Object-assign"><a href="#对象解构-vs-Object-assign" class="headerlink" title="对象解构 vs. Object.assign()"></a>对象解构 vs. Object.assign()</h3><ul>
+<li><code>Object.assign()</code> 触发源对象的 <code>set</code> 方法，解构则不会</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Object</span>.defineProperty(<span class="built_in">Object</span>.prototype, <span class="string">'foo'</span>, &#123;</span><br><span class="line">  <span class="keyword">set</span>(value) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'SET'</span>, value)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">foo</span>: <span class="number">123</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Object</span>.assign(&#123;&#125;, obj)</span><br><span class="line"><span class="comment">// SET 123</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> res = &#123; ...obj &#125; <span class="comment">// 没有输出</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>对于只读属性</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 前提</span></span><br><span class="line"><span class="meta">'use strict'</span></span><br><span class="line"><span class="built_in">Object</span>.defineProperty(<span class="built_in">Object</span>.prototype, <span class="string">'bar'</span>, &#123;</span><br><span class="line">  writable: <span class="literal">false</span>,</span><br><span class="line">  value: <span class="string">'abc'</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> tmp = &#123;&#125;</span><br><span class="line">tmp.bar = <span class="number">123</span></span><br><span class="line"><span class="comment">// TypeError: Cannot assign to read only property 'bar' of object '#&lt;Object&gt;'</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">bar</span>: <span class="number">123</span> &#125; <span class="comment">// 正常</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">bar</span>: <span class="number">123</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">Object</span>.assign(&#123;&#125;, obj)</span><br><span class="line"><span class="comment">// TypeError: Cannot assign to read only property 'bar' of object '#&lt;Object&gt;'</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">bar</span>: <span class="number">123</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> obj2 = &#123; ...obj &#125;</span><br><span class="line"><span class="built_in">console</span>.log(obj2) <span class="comment">// &#123; bar: 123 &#125;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>两者都只考虑非原型上的可枚举属性</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> proto = &#123;</span><br><span class="line">  inheritedEnumerable: <span class="number">1</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> obj = <span class="built_in">Object</span>.create(proto, &#123;</span><br><span class="line">  ownEnumerable: &#123;</span><br><span class="line">    value: <span class="number">2</span>,</span><br><span class="line">    enumerable: <span class="literal">true</span></span><br><span class="line">  &#125;,</span><br><span class="line">  ownNonEnumerable: &#123;</span><br><span class="line">    value: <span class="number">3</span>,</span><br><span class="line">    enumerable: <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> res1 = &#123; ...obj &#125;</span><br><span class="line"><span class="built_in">console</span>.log(res1) <span class="comment">// &#123; ownEnumerable: 2 &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> res2 = <span class="built_in">Object</span>.assign(&#123;&#125;, obj)</span><br><span class="line"><span class="built_in">console</span>.log(res2) <span class="comment">// &#123; ownEnumerable: 2 &#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h2><h3 id="命名捕获组（Named-capture-groups）"><a href="#命名捕获组（Named-capture-groups）" class="headerlink" title="命名捕获组（Named capture groups）"></a>命名捕获组（Named capture groups）</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> RE_DATE = <span class="regexp">/(?&lt;year&gt;[0-9]&#123;4&#125;)-(?&lt;month&gt;[0-9]&#123;2&#125;)-(?&lt;day&gt;[0-9]&#123;2&#125;)/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> matchObj = RE_DATE.exec(<span class="string">'1999-12-31'</span>)</span><br><span class="line"><span class="keyword">const</span> year = matchObj.groups.year <span class="comment">// 1999</span></span><br><span class="line"><span class="keyword">const</span> month = matchObj.groups.month <span class="comment">// 12</span></span><br><span class="line"><span class="keyword">const</span> day = matchObj.groups.day <span class="comment">// 31</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Named capture groups 同样可以通过下标获取组</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> year2 = matchObj[<span class="number">1</span>] <span class="comment">// 1999</span></span><br><span class="line"><span class="keyword">const</span> month2 = matchObj[<span class="number">2</span>] <span class="comment">// 12</span></span><br><span class="line"><span class="keyword">const</span> day2 = matchObj[<span class="number">3</span>] <span class="comment">// 31</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="反向引用（Backreferences）"><a href="#反向引用（Backreferences）" class="headerlink" title="反向引用（Backreferences）"></a>反向引用（Backreferences）</h4><p><code>\k&lt;name&gt;</code> 在正则表达式中表示：匹配先前捕获过的同名捕获组字符串</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> RE_TWICE = <span class="regexp">/^(?&lt;word&gt;[a-z]+)!\k&lt;word&gt;$/</span></span><br><span class="line">RE_TWICE.test(<span class="string">'abc!abc'</span>) <span class="comment">// true</span></span><br><span class="line">RE_TWICE.test(<span class="string">'abc!ab'</span>) <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+
+<p>编号捕获组（numbered capture groups ）的反向引用语法 也适用于 命名捕获组</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> RE_TWICE = <span class="regexp">/^(?&lt;word&gt;[a-z]+)!\1$/</span></span><br><span class="line">RE_TWICE.test(<span class="string">'abc!abc'</span>) <span class="comment">// true</span></span><br><span class="line">RE_TWICE.test(<span class="string">'abc!ab'</span>) <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+
+<p>两者也可以混合使用</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> RE_TWICE = <span class="regexp">/^(?&lt;word&gt;[a-z]+)!\k&lt;word&gt;!\1$/</span></span><br><span class="line">RE_TWICE.test(<span class="string">'abc!abc!abc'</span>) <span class="comment">// true</span></span><br><span class="line">RE_TWICE.test(<span class="string">'abc!abc!ab'</span>) <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="replace-和命名捕获组"><a href="#replace-和命名捕获组" class="headerlink" title="replace() 和命名捕获组"></a>replace() 和命名捕获组</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> RE_DATE = <span class="regexp">/(?&lt;year&gt;[0-9]&#123;4&#125;)-(?&lt;month&gt;[0-9]&#123;2&#125;)-(?&lt;day&gt;[0-9]&#123;2&#125;)/</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'1999-12-31'</span>.replace(RE_DATE, <span class="string">'$&lt;month&gt;/$&lt;day&gt;/$&lt;year&gt;'</span>))</span><br><span class="line"><span class="comment">// 12/31/1999</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> RE_DATE = <span class="regexp">/(?&lt;year&gt;[0-9]&#123;4&#125;)-(?&lt;month&gt;[0-9]&#123;2&#125;)-(?&lt;day&gt;[0-9]&#123;2&#125;)/</span></span><br><span class="line"><span class="built_in">console</span>.log(</span><br><span class="line">  <span class="string">'1999-12-31'</span>.replace(</span><br><span class="line">    RE_DATE,</span><br><span class="line">    (g0, y, m, d, offset, input, &#123; year, month, day &#125;) =&gt; month + <span class="string">'/'</span> + day + <span class="string">'/'</span> + year</span><br><span class="line">  )</span><br><span class="line">)</span><br><span class="line"><span class="comment">// 12/31/1999</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li><code>g0</code> 包含匹配得到的整个字符串 <code>1999-12-31</code></li>
+<li><code>y, m, d</code> 指捕获组 1-3，也是命名组 <code>year, month, day</code></li>
+<li><code>offset</code> 指匹配到的内容在字符串中的位置</li>
+<li><code>input</code> 指输入的整个字符串</li>
+<li>最后的一个参数是新增的，包含命名捕获组，这里是 <code>year, month, day</code></li>
+</ul>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取最后一个参数的另一种方法</span></span><br><span class="line"><span class="keyword">const</span> RE_DATE = <span class="regexp">/(?&lt;year&gt;[0-9]&#123;4&#125;)-(?&lt;month&gt;[0-9]&#123;2&#125;)-(?&lt;day&gt;[0-9]&#123;2&#125;)/</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(</span><br><span class="line">  <span class="string">'1999-12-31'</span>.replace(RE_DATE, (...args) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; year, month, day &#125; = args[args.length - <span class="number">1</span>]</span><br><span class="line">    <span class="keyword">return</span> month + <span class="string">'/'</span> + day + <span class="string">'/'</span> + year</span><br><span class="line">  &#125;)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 12/31/1999</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="未匹配的命名组"><a href="#未匹配的命名组" class="headerlink" title="未匹配的命名组"></a>未匹配的命名组</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> RE_OPT_A = <span class="regexp">/^(?&lt;as&gt;a+)?$/</span></span><br><span class="line"><span class="keyword">const</span> matchObj = RE_OPT_A.exec(<span class="string">''</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Group &lt;as&gt; didn’t match anything:</span></span><br><span class="line"><span class="built_in">console</span>.log(matchObj.groups.as === <span class="literal">undefined</span>) <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// But property `as` exists:</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'as'</span> <span class="keyword">in</span> matchObj.groups) <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="正则表达式-Unicode-转义属性"><a href="#正则表达式-Unicode-转义属性" class="headerlink" title="正则表达式 Unicode 转义属性"></a>正则表达式 Unicode 转义属性</h3><p>正则表达式中使用 u 标志(flags)，之后在<code>\p{}</code>花括号内声明 Unicode 字符属性</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 匹配空白符</span></span><br><span class="line">/^\p&#123;White_Space&#125;+$/u.test(<span class="string">'\t \n\r'</span>)</span><br><span class="line"><span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 匹配希腊字母</span></span><br><span class="line">/^\p&#123;Script=Greek&#125;+$/u.test(<span class="string">'μετά'</span>)</span><br><span class="line"><span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><a href="https://en.wikipedia.org/wiki/Unicode_character_property" target="_blank" rel="noopener">WIKI - Unicode 字符属性</a></p>
+</blockquote>
+<h3 id="正则表达式-lookbehind-assertion"><a href="#正则表达式-lookbehind-assertion" class="headerlink" title="正则表达式 - lookbehind assertion"></a>正则表达式 - lookbehind assertion</h3><p>翻译成：反向断言？回顾断言？翻译成反向断言算了，重在理解。</p>
+<table>
+<thead>
+<tr>
+<th>符号</th>
+<th>翻译</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>(?&lt;=exp)reg</code></td>
+<td>反向肯定断言</td>
+<td>reg 匹配的内容前面内容满足 exp 规则</td>
+</tr>
+<tr>
+<td><code>(?&lt;!exp)reg</code></td>
+<td>反向否定断言</td>
+<td>reg 匹配的内容前面内容不满足 exp 规则</td>
+</tr>
+</tbody></table>
+<ul>
+<li>正向断言(lookahead assertions)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>符号</th>
+<th>翻译</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>reg(?=exp)</code></td>
+<td>正向肯定断言</td>
+<td>reg 匹配的内容后面内容满足 exp 规则</td>
+</tr>
+<tr>
+<td><code>reg(?!exp)</code></td>
+<td>正向否定断言</td>
+<td>reg 匹配的内容后面内容不满足 exp 规则</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>正向断言和反向断言均不捕获分组。</p>
+</blockquote>
+<h4 id="eg"><a href="#eg" class="headerlink" title="eg"></a>eg</h4><ol>
+<li>正向断言</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 正向肯定断言</span></span><br><span class="line"><span class="keyword">const</span> RE_AS_BS = <span class="regexp">/aa(?=bb)/</span></span><br><span class="line"><span class="keyword">const</span> match1 = RE_AS_BS.exec(<span class="string">'aabb'</span>)</span><br><span class="line">match1[<span class="number">0</span>]</span><br><span class="line"><span class="comment">// 'aa'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> match2 = RE_AS_BS.exec(<span class="string">'aab'</span>)</span><br><span class="line">match2</span><br><span class="line"><span class="comment">// null</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 正向否定断言</span></span><br><span class="line"><span class="keyword">const</span> RE_AS_NO_BS = <span class="regexp">/aa(?!bb)/</span></span><br><span class="line">RE_AS_NO_BS.test(<span class="string">'aabb'</span>)</span><br><span class="line"><span class="comment">// false</span></span><br><span class="line"></span><br><span class="line">RE_AS_NO_BS.test(<span class="string">'aab'</span>)</span><br><span class="line"><span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>反向断言</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 反向肯定断言</span></span><br><span class="line"><span class="string">'a1ba2ba3b'</span>.match(<span class="regexp">/(?&lt;=b)a.b/g</span>)</span><br><span class="line"><span class="comment">// [ 'a2b', 'a3b' ]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 反向否定断言</span></span><br><span class="line"><span class="keyword">const</span> RE_NO_DOLLAR_PREFIX = <span class="regexp">/(?&lt;!\$)foo/g</span></span><br><span class="line"><span class="string">'$foo %foo foo'</span>.replace(RE_NO_DOLLAR_PREFIX, <span class="string">'bar'</span>)</span><br><span class="line"><span class="comment">// '$foo %bar bar'</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="正则表达式-s-dotAll-标志符"><a href="#正则表达式-s-dotAll-标志符" class="headerlink" title="正则表达式 s(dotAll) 标志符"></a>正则表达式 s(dotAll) 标志符</h3><ol>
+<li>添加<code>s</code>标志符的作用：使正则表达式中的 <code>.</code> 匹配包括行终止符在内的所有单字符。不添加的话不匹配行终止符。</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/^.$/.test(<span class="string">'\n'</span>)</span><br><span class="line"><span class="comment">// false</span></span><br><span class="line"></span><br><span class="line">/^.$/s.test(<span class="string">'\n'</span>)</span><br><span class="line"><span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>行终止符包括<code>\n</code>, <code>\r</code>等。<a href="https://www.ecma-international.org/ecma-262/5.1/#sec-7.3" target="_blank" rel="noopener">ECMA-line terminators</a></p>
+</blockquote>
+<ol start="2">
+<li>标志符 <code>/s</code>对应的正则实例属性是 <code>dotAll</code></li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/./s.dotAll</span><br><span class="line"><span class="comment">// true</span></span><br><span class="line"></span><br><span class="line">/./g.global</span><br><span class="line"><span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Promise-finally"><a href="#Promise-finally" class="headerlink" title="Promise.finally()"></a>Promise.finally()</h2><ul>
+<li>then’s callback is only executed if <code>promise</code> is <strong>fulfilled</strong></li>
+<li>catch’s callback is only executed if <code>promise</code> is <strong>rejected</strong>. Or <strong>then’s callback throws an exception or returns a rejected Promise</strong>.</li>
+<li>不管 fulfilled 或 rejected, finally 都会执行</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">promise</span><br><span class="line">  .then(<span class="function"><span class="params">result</span> =&gt;</span> &#123;···&#125;)</span><br><span class="line">  .catch(<span class="function"><span class="params">error</span> =&gt;</span> &#123;···&#125;)</span><br><span class="line">  .finally(<span class="function"><span class="params">()</span> =&gt;</span> &#123;···&#125;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="模板字符串"><a href="#模板字符串" class="headerlink" title="模板字符串"></a>模板字符串</h2><h3 id="带标签的模板字面量及转义序列"><a href="#带标签的模板字面量及转义序列" class="headerlink" title="带标签的模板字面量及转义序列"></a>带标签的模板字面量及转义序列</h3><ol>
+<li><p>自 ES2016 起，带标签的模版字面量遵守以下转义序列的规则：</p>
+<ul>
+<li>Unicode 字符以<code>&quot;\u&quot;</code>开头，例如<code>\u00A9</code></li>
+<li>Unicode 码位用<code>&quot;\u{}&quot;</code>表示，例如<code>\u{2F804}</code></li>
+<li>十六进制以<code>&quot;\x&quot;</code>开头，例如<code>\xA9</code></li>
+<li>八进制以<code>&quot;\&quot;</code>和数字开头，例如<code>\251</code></li>
+</ul>
+</li>
+<li><p>ES2018 关于非法转义序列的修订<br>移除对 ECMAScript 在带标签的模版字符串中转义序列的语法限制。不过，非法转义序列在”cooked”当中仍然会体现出来。它们将以 undefined 元素的形式存在于”cooked”之中：</p>
+</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">latex</span>(<span class="params">str</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &#123; <span class="attr">cooked</span>: str[<span class="number">0</span>], <span class="attr">raw</span>: str.raw[<span class="number">0</span>] &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(latex<span class="string">`\unicode`</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// &#123; cooked: undefined, raw: "\\unicode" &#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>注意：这一转义序列限制只对带标签的模板字面量移除，而不包括不带标签的模板字面量：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> bad = <span class="string">`bad escape sequence: \unicode`</span></span><br><span class="line"><span class="comment">// Uncaught SyntaxError: Invalid Unicode escape sequence</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><blockquote>
+<p><a href="http://exploringjs.com/es2018-es2019/toc.html" target="_blank" rel="noopener">http://exploringjs.com/es2018-es2019/toc.html</a></p>
+</blockquote>
+<blockquote>
+<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/template_strings" target="_blank" rel="noopener">https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/template_strings</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/blog/tags/js/" rel="tag"># js</a>
+            
+              <a href="/blog/tags/es2018/" rel="tag"># es2018</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/blog/2018/10/28/es2016-and-es2017/" rel="next" title="ES2016-and-ES2017">
+                  <i class="fa fa-chevron-left"></i> ES2016-and-ES2017
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/blog/2019/10/23/auto-build-and-deploy-hexo-blog/" rel="prev" title="自动化构建并部署hexo博客">
+                  自动化构建并部署hexo博客 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="gitalk-container"></div>
+  
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#说明"><span class="nav-number">1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步迭代"><span class="nav-number">2.</span> <span class="nav-text">异步迭代</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#for-await…of"><span class="nav-number">2.1.</span> <span class="nav-text">for await…of</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异步-generator-函数"><span class="nav-number">2.2.</span> <span class="nav-text">异步 generator 函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抛出错误"><span class="nav-number">2.3.</span> <span class="nav-text">抛出错误</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解构"><span class="nav-number">3.</span> <span class="nav-text">解构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#rest-与对象解构"><span class="nav-number">3.1.</span> <span class="nav-text">rest 与对象解构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象解构-vs-Object-assign"><span class="nav-number">3.2.</span> <span class="nav-text">对象解构 vs. Object.assign()</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#正则表达式"><span class="nav-number">4.</span> <span class="nav-text">正则表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#命名捕获组（Named-capture-groups）"><span class="nav-number">4.1.</span> <span class="nav-text">命名捕获组（Named capture groups）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#反向引用（Backreferences）"><span class="nav-number">4.1.1.</span> <span class="nav-text">反向引用（Backreferences）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#replace-和命名捕获组"><span class="nav-number">4.1.2.</span> <span class="nav-text">replace() 和命名捕获组</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#未匹配的命名组"><span class="nav-number">4.1.3.</span> <span class="nav-text">未匹配的命名组</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#正则表达式-Unicode-转义属性"><span class="nav-number">4.2.</span> <span class="nav-text">正则表达式 Unicode 转义属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#正则表达式-lookbehind-assertion"><span class="nav-number">4.3.</span> <span class="nav-text">正则表达式 - lookbehind assertion</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#eg"><span class="nav-number">4.3.1.</span> <span class="nav-text">eg</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#正则表达式-s-dotAll-标志符"><span class="nav-number">4.4.</span> <span class="nav-text">正则表达式 s(dotAll) 标志符</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Promise-finally"><span class="nav-number">5.</span> <span class="nav-text">Promise.finally()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模板字符串"><span class="nav-number">6.</span> <span class="nav-text">模板字符串</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#带标签的模板字面量及转义序列"><span class="nav-number">6.1.</span> <span class="nav-text">带标签的模板字面量及转义序列</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">PJ</p>
+  <div class="site-description" itemprop="description">B What U Wanna B</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/blog/archives/%20%7C%7C%20archive">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/blog/categories/%20%7C%7C%20th">
+          
+        
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/blog/tags/%20%7C%7C%20tags">
+          
+        
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PJ</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.1
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+<script src="/blog/js/utils.js?v=7.4.1.js"></script>
+
+<script src="/blog/js/motion.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/next-boot.js?v=7.4.1.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+<script src="/blog/js/local-search.js?v=7.4.1.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'dd946c3d0eb6bc5aaf24',
+      clientSecret: '5051b237a867f9673700aaef753148bd6fc17d34',
+      repo: 'blog',
+      owner: 'sluggishpj',
+      admin: ['sluggishpj'],
+      id: 'cd7bff68f18622d66d7a7628e2b058ab',
+        language: window.navigator.language || window.navigator.userLanguage,
+      
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

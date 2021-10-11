@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Muse',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":true},
+    copycode: {"enable":true,"show_result":true,"style":"mac"},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="引言项目开发时，有开发分支，测试分支，主干分支等。一般不能把测试分支合并到其他分支里，然而可能一不小心（手抖）合并了，甚至在不知情的情况下还加了新的东西，后面上线时才发现（或者没发现，直接把测试分支的代码带到了线上），后果可大可小，回滚时也麻烦。 那能不能在合并阶段直接禁止合并非法分支呢？答案是可以的。只要解决了下面问题即可。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Git Hooks 阻止合并特定分支">
+<meta property="og:url" content="https://sluggishpj.github.io/2021/08/01/git-hooks-prevent-merge-branch/index.html">
+<meta property="og:site_name" content="PJ&#39;S BLOG">
+<meta property="og:description" content="引言项目开发时，有开发分支，测试分支，主干分支等。一般不能把测试分支合并到其他分支里，然而可能一不小心（手抖）合并了，甚至在不知情的情况下还加了新的东西，后面上线时才发现（或者没发现，直接把测试分支的代码带到了线上），后果可大可小，回滚时也麻烦。 那能不能在合并阶段直接禁止合并非法分支呢？答案是可以的。只要解决了下面问题即可。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://wac-cdn.atlassian.com/dam/jcr:d90f2536-7951-4e5e-ab79-f45a502fb4c8/03-04%20Fast%20forward%20merge.svg?cdnVersion=1735">
+<meta property="og:image" content="https://wac-cdn.atlassian.com/dam/jcr:91aece4a-8fa0-4fc3-bae9-69d51932f104/05-06%20Fast%20forward%20merge.svg?cdnVersion=1735">
+<meta property="og:image" content="https://raw.githubusercontent.com/sluggishpj/assets/main/images/git-hooks-prevent-merge-summary.svg">
+<meta property="article:published_time" content="2021-08-01T16:06:14.000Z">
+<meta property="article:modified_time" content="2021-10-11T12:19:35.050Z">
+<meta property="article:author" content="PJ">
+<meta property="article:tag" content="git">
+<meta property="article:tag" content="git hooks">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://wac-cdn.atlassian.com/dam/jcr:d90f2536-7951-4e5e-ab79-f45a502fb4c8/03-04%20Fast%20forward%20merge.svg?cdnVersion=1735">
+  <link rel="canonical" href="https://sluggishpj.github.io/2021/08/01/git-hooks-prevent-merge-branch/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Git Hooks 阻止合并特定分支 | PJ'S BLOG</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PJ'S BLOG</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/blog/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+        
+          <i class="fa fa-search fa-fw"></i>
+        
+        Search
+        </a>
+      </li>
+    
+  </ul>
+
+    
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="Searching..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://sluggishpj.github.io/blog/2021/08/01/git-hooks-prevent-merge-branch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PJ">
+      <meta itemprop="description" content="B What U Wanna B">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PJ'S BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Git Hooks 阻止合并特定分支
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2021-08-01 16:06:14" itemprop="dateCreated datePublished" datetime="2021-08-01T16:06:14+00:00">2021-08-01</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-10-11 12:19:35" itemprop="dateModified" datetime="2021-10-11T12:19:35+00:00">2021-10-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/tools/" itemprop="url" rel="index">
+                    <span itemprop="name">tools</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/tools/git/" itemprop="url" rel="index">
+                    <span itemprop="name">git</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>项目开发时，有开发分支，测试分支，主干分支等。一般不能把<strong>测试分支</strong>合并到其他分支里，然而可能一不小心（手抖）合并了，甚至在不知情的情况下还加了新的东西，后面上线时才发现（或者没发现，直接把测试分支的代码带到了线上），后果可大可小，回滚时也麻烦。</p>
+<p>那能不能在合并阶段直接禁止合并非法分支呢？答案是可以的。只要解决了下面问题即可。</p>
+<a id="more"></a>
+
+<ul>
+<li>是否在合并中？</li>
+<li>当前分支名叫啥？</li>
+<li>要合并进来的分支名又叫啥？</li>
+<li>当前分支 和 要合并进来的分支 2 者是否满足条件【这里是 要合并进来的分支 不能是 测试分支】</li>
+</ul>
+<h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><h3 id="git-hooks"><a href="#git-hooks" class="headerlink" title="git hooks"></a>git hooks</h3><p><a href="https://git-scm.com/docs/githooks" target="_blank" rel="noopener">git hooks</a>，简单来说就是在执行 git 命令的过程中会触发的钩子函数（脚本程序）。只要知道特定 git 命令会触发什么 hooks，就可以做对应处理，比如可以用来检查提交信息是否符合规范（如 <a href="https://github.com/conventional-changelog/commitlint" target="_blank" rel="noopener">commitlint</a>，以及本文即将要了解的阻止合并特定分支。</p>
+<h3 id="git-合并"><a href="#git-合并" class="headerlink" title="git 合并"></a>git 合并</h3><p>命令: <code>git merge &lt;branch&gt;</code></p>
+<p>合并可能有 3 种情况</p>
+<ul>
+<li><strong>fast-forward merge</strong>: 合并时，当前分支和要合并进来的分支，分支历史没有分叉【简单理解就是 要合并的分支是基于当前分支前进的，且当前分支从要合并的分支新建后 再也没发生过变更】。可以通过 <code>git merge --no-ff &lt;branch&gt;</code>变为第 2 种合并情况</li>
+</ul>
+<p><img src="https://wac-cdn.atlassian.com/dam/jcr:d90f2536-7951-4e5e-ab79-f45a502fb4c8/03-04%20Fast%20forward%20merge.svg?cdnVersion=1735" alt="fast-forward merge | atlassian"></p>
+<ul>
+<li><strong>no fast-forward merge</strong>: 新增 1 个历史节点，其直接父节点指向为要合并的 2 个分支</li>
+</ul>
+<p><img src="https://wac-cdn.atlassian.com/dam/jcr:91aece4a-8fa0-4fc3-bae9-69d51932f104/05-06%20Fast%20forward%20merge.svg?cdnVersion=1735" alt="no fast-forward merge | atlassian"></p>
+<ul>
+<li><strong>merge conflict</strong>: 合并冲突了，此时需要解决冲突，然后重新 add &amp; commit</li>
+</ul>
+<blockquote>
+<p>图片来自：<a href="https://www.atlassian.com/git/tutorials/using-branches/git-merge" target="_blank" rel="noopener">https://www.atlassian.com/git/tutorials/using-branches/git-merge</a></p>
+</blockquote>
+<blockquote>
+<p><strong>前置说明</strong><br>这里的项目是前端项目，使用 <a href="https://github.com/typicode/husky" target="_blank" rel="noopener">husky</a> 管理 git hooks</p>
+</blockquote>
+<h2 id="问题解答"><a href="#问题解答" class="headerlink" title="问题解答"></a>问题解答</h2><h3 id="是否在合并中"><a href="#是否在合并中" class="headerlink" title="是否在合并中"></a>是否在合并中</h3><p>通过查阅 <a href="https://git-scm.com/docs/githooks" target="_blank" rel="noopener">git hooks</a> 可知，merge 阶段<strong>可能</strong>会触发以下钩子【之所以说可能是因为 merge 有多种情况，每种情况触发的钩子不太一致】：</p>
+<ul>
+<li><code>pre-merge-commit</code></li>
+<li><code>prepare-commit-msg</code></li>
+<li><code>commit-msg</code></li>
+<li><code>post-merge</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>合并情况\触发钩子</th>
+<th><code>pre-merge-commit</code></th>
+<th><code>prepare-commit-msg</code></th>
+<th><code>commit-msg</code></th>
+<th><code>post-merge</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>fast-forward merge</code></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>no fast-forward merge</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>merge conflict</code> 解决完冲突后 add &amp; commit</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><code>merge conflict</code> 会有中间态 <code>(当前分支 | MERGING)</code>，从初始态到中间态，不会触发 merge 相关的钩子。当解决完冲突后，开始 add&amp;commit 时，会触发对应钩子</p>
+</blockquote>
+<p>根据合并情况，使用到的钩子如下：</p>
+<ul>
+<li><code>fast-forward merge</code> 和 <code>no fast-forward merge</code>: 使用 <code>post-merge</code> 钩子</li>
+<li><code>merge conflict</code>: 使用 <code>prepare-commit-msg</code> 或 <code>commit-msg</code>【因 commit-msg 钩子无法获取到合并进来的分支名，故只能使用 <code>prepare-commit-msg</code>】</li>
+</ul>
+<h3 id="获取当前分支名"><a href="#获取当前分支名" class="headerlink" title="获取当前分支名"></a>获取当前分支名</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rev-parse --abbrev-ref HEAD</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>REF: <a href="https://stackoverflow.com/questions/6245570/how-to-get-the-current-branch-name-in-git" target="_blank" rel="noopener">https://stackoverflow.com/questions/6245570/how-to-get-the-current-branch-name-in-git</a></p>
+</blockquote>
+<h3 id="获取合并进来的分支名"><a href="#获取合并进来的分支名" class="headerlink" title="获取合并进来的分支名"></a>获取合并进来的分支名</h3><h4 id="post-merge"><a href="#post-merge" class="headerlink" title="post-merge"></a>post-merge</h4><p>在此钩子处理 <code>no fast-forward merge</code> 和 <code>fast-forward merge</code> 情况。</p>
+<p><code>post-merge</code> 钩子触发时，分支已经合并了，并且 reflog 也更新了，所以可以通过 <code>git reflog</code> 获取到合并进来的分支信息</p>
+<p>前 2 种合并情况，<code>git reflog -1</code> 返回的日志格式如下</p>
+<ul>
+<li><code>no fast-forward merge</code>: <code>e7cb874 HEAD@{0}: merge feat/no-fast-forward: Merge made by the &#39;recursive&#39; strategy.</code></li>
+<li><code>fast-forward merge</code>: <code>724446f HEAD@{0}: merge feat/fast-forward: Fast-forward</code></li>
+</ul>
+<p>可以通过正则匹配提取对应的分支名，代码如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; execSync &#125; = <span class="built_in">require</span>(<span class="string">'child_process'</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getMergeBranch</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 从 reflog 提取合并进来的分支名</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">getBranchNameFromReflog</span>(<span class="params">reflogMessage</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> reg = <span class="regexp">/@\&#123;\d+\&#125;: merge (.*):/</span>;</span><br><span class="line">    <span class="keyword">return</span> reg.exec(reflogMessage)[<span class="number">1</span>];</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> reflogMessage = execSync(<span class="string">'git reflog -1'</span>, &#123; <span class="attr">encoding</span>: <span class="string">'utf8'</span> &#125;);</span><br><span class="line">  <span class="keyword">const</span> mergedBranchName = getBranchNameFromReflog(reflogMessage);</span><br><span class="line">  <span class="keyword">return</span> mergedBranchName;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="prepare-commit-msg"><a href="#prepare-commit-msg" class="headerlink" title="prepare-commit-msg"></a>prepare-commit-msg</h4><p>在此钩子处理合并冲突的情况。</p>
+<p>因冲突未解决，reflog 也不会更新，因此无法通过 reflog 获取到合并进来的分支。</p>
+<p>不过在合并冲突阶段，<code>.git/MERGE_HEAD</code> 中会保留合并进来分支的 hash。<br>在 <code>prepare-commit-msg</code> 触发时，可以通过读取该文件获取对应的内容，再通过 <code>git name-rev [hash]</code> 命令获取对应的分支名</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; execSync &#125; = <span class="built_in">require</span>(<span class="string">'child_process'</span>);</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>);</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 从 .git/MERGE_HEAD (sha) 提取合并进来的分支名</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getMergeBranch</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> mergeHeadPath = path.resolve(process.cwd(), <span class="string">'.git/MERGE_HEAD'</span>);</span><br><span class="line">    <span class="keyword">const</span> mergeHeadSha = fs.readFileSync(mergeHeadPath, &#123; <span class="attr">encoding</span>: <span class="string">'utf8'</span> &#125;);</span><br><span class="line">    <span class="keyword">const</span> mergeBranchInfo = execSync(<span class="string">`git name-rev <span class="subst">$&#123;mergeHeadSha&#125;</span>`</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="regexp">/ (.*?)\n/</span>.exec(mergeBranchInfo)[<span class="number">1</span>];</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">''</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="合并分支是否符合要求"><a href="#合并分支是否符合要求" class="headerlink" title="合并分支是否符合要求"></a>合并分支是否符合要求</h3><p>这个根据各自场景处理就行了。比如在合并错误分支后，进行提示，让操作者自行决定是否回滚等。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">showConfirm</span>(<span class="params">currentBranch, mergeBranch</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`检测到非法合并: <span class="subst">$&#123;mergeBranch&#125;</span> ==into==&gt; <span class="subst">$&#123;currentBranch&#125;</span>`</span>);</span><br><span class="line">  <span class="keyword">const</span> rl = readline.createInterface(&#123;</span><br><span class="line">    input: process.stdin,</span><br><span class="line">    output: process.stdout,</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  rl.question(<span class="string">`确定要合并 <span class="subst">$&#123;mergeBranch&#125;</span> 分支吗？(y/n) `</span>, (answer) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (answer === <span class="string">'y'</span>) &#123;</span><br><span class="line">      rl.close();</span><br><span class="line">      process.exit(<span class="number">0</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'撤销合并中...'</span>);</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">`exec: git reset --merge HEAD@&#123;1&#125;`</span>);</span><br><span class="line">      execSync(<span class="string">'git reset --merge HEAD@&#123;1&#125;'</span>);</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'已撤销合并 done'</span>);</span><br><span class="line">      rl.close();</span><br><span class="line">      process.exit(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>细心的同学可能已经发现了，在第一个问题【是否在合并中】，最终采用了 <code>post-merge</code> 和 <code>prepare-commit-msg</code> 2 个钩子，但这 2 个钩子在<code>no fast-forward merge</code>的情况下都会触发到。此时需要进行识别，当且仅当在 <code>merge conflict</code> 才去执行 <code>prepare-commit-msg</code> 钩子中的逻辑。</p>
+<p>思路是检测 <code>.git/MERGE_MSG</code> 文件是否存在，以及其中的内容。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; execSync &#125; = <span class="built_in">require</span>(<span class="string">'child_process'</span>);</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>);</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">isMergingConflict</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 是否合并中</span></span><br><span class="line">  <span class="keyword">const</span> mergeMsgPath = path.resolve(process.cwd(), <span class="string">'.git/MERGE_MSG'</span>);</span><br><span class="line">  <span class="keyword">const</span> isMerging = fs.existsSync(mergeMsgPath);</span><br><span class="line">  <span class="keyword">if</span> (!isMerging) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> mergeMsg = fs.readFileSync(mergeMsgPath, &#123; <span class="attr">encoding</span>: <span class="string">'utf8'</span> &#125;);</span><br><span class="line">    <span class="keyword">return</span> <span class="regexp">/\n# Conflicts:\n/</span>.test(mergeMsg);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;&#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><img src="https://raw.githubusercontent.com/sluggishpj/assets/main/images/git-hooks-prevent-merge-summary.svg" alt="git-hooks-prevent-merge-summary"></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/blog/tags/git/" rel="tag"># git</a>
+            
+              <a href="/blog/tags/git-hooks/" rel="tag"># git hooks</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/blog/2019/10/28/es2019/" rel="next" title="es2019">
+                  <i class="fa fa-chevron-left"></i> es2019
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="gitalk-container"></div>
+  
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#前置知识"><span class="nav-number">2.</span> <span class="nav-text">前置知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#git-hooks"><span class="nav-number">2.1.</span> <span class="nav-text">git hooks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#git-合并"><span class="nav-number">2.2.</span> <span class="nav-text">git 合并</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题解答"><span class="nav-number">3.</span> <span class="nav-text">问题解答</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#是否在合并中"><span class="nav-number">3.1.</span> <span class="nav-text">是否在合并中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取当前分支名"><span class="nav-number">3.2.</span> <span class="nav-text">获取当前分支名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取合并进来的分支名"><span class="nav-number">3.3.</span> <span class="nav-text">获取合并进来的分支名</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#post-merge"><span class="nav-number">3.3.1.</span> <span class="nav-text">post-merge</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#prepare-commit-msg"><span class="nav-number">3.3.2.</span> <span class="nav-text">prepare-commit-msg</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#合并分支是否符合要求"><span class="nav-number">3.4.</span> <span class="nav-text">合并分支是否符合要求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他问题"><span class="nav-number">3.5.</span> <span class="nav-text">其他问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">PJ</p>
+  <div class="site-description" itemprop="description">B What U Wanna B</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/blog/archives/%20%7C%7C%20archive">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/blog/categories/%20%7C%7C%20th">
+          
+        
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/blog/tags/%20%7C%7C%20tags">
+          
+        
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PJ</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.1
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+<script src="/blog/js/utils.js?v=7.4.1.js"></script>
+
+<script src="/blog/js/motion.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/next-boot.js?v=7.4.1.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+<script src="/blog/js/local-search.js?v=7.4.1.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'dd946c3d0eb6bc5aaf24',
+      clientSecret: '5051b237a867f9673700aaef753148bd6fc17d34',
+      repo: 'blog',
+      owner: 'sluggishpj',
+      admin: ['sluggishpj'],
+      id: '0db79c837b2ae6728ace00bd3bac0019',
+        language: window.navigator.language || window.navigator.userLanguage,
+      
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Muse',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":true},
+    copycode: {"enable":true,"show_result":true,"style":"mac"},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="浏览器bug修复">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScript忍者秘籍笔记05之跨浏览器策略">
+<meta property="og:url" content="https://sluggishpj.github.io/2017/10/28/secrets-of-the-js-ninja-5-cross-browser-strategies/index.html">
+<meta property="og:site_name" content="PJ&#39;S BLOG">
+<meta property="og:description" content="浏览器bug修复">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-10-28T08:52:36.000Z">
+<meta property="article:modified_time" content="2021-10-11T12:19:35.050Z">
+<meta property="article:author" content="PJ">
+<meta property="article:tag" content="js">
+<meta property="article:tag" content="js忍者秘籍">
+<meta property="article:tag" content="跨浏览器">
+<meta name="twitter:card" content="summary">
+  <link rel="canonical" href="https://sluggishpj.github.io/2017/10/28/secrets-of-the-js-ninja-5-cross-browser-strategies/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>JavaScript忍者秘籍笔记05之跨浏览器策略 | PJ'S BLOG</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PJ'S BLOG</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/blog/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+        
+          <i class="fa fa-search fa-fw"></i>
+        
+        Search
+        </a>
+      </li>
+    
+  </ul>
+
+    
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="Searching..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://sluggishpj.github.io/blog/2017/10/28/secrets-of-the-js-ninja-5-cross-browser-strategies/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PJ">
+      <meta itemprop="description" content="B What U Wanna B">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PJ'S BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            JavaScript忍者秘籍笔记05之跨浏览器策略
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2017-10-28 08:52:36" itemprop="dateCreated datePublished" datetime="2017-10-28T08:52:36+00:00">2017-10-28</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-10-11 12:19:35" itemprop="dateModified" datetime="2021-10-11T12:19:35+00:00">2021-10-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/js/" itemprop="url" rel="index">
+                    <span itemprop="name">js</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/js/js%E5%BF%8D%E8%80%85%E7%A7%98%E7%B1%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">js忍者秘籍</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="浏览器bug修复"><a href="#浏览器bug修复" class="headerlink" title="浏览器bug修复"></a>浏览器bug修复</h2><a id="more"></a>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;form id=<span class="string">"form"</span> action=<span class="string">"/conceal"</span>&gt;</span><br><span class="line">    &lt;input type=<span class="string">"text"</span> id=<span class="string">"action"</span> /&gt;</span><br><span class="line">    &lt;input type=<span class="string">"submit"</span> id=<span class="string">"submit"</span> /&gt;</span><br><span class="line">&lt;<span class="regexp">/form&gt;</span></span><br><span class="line"><span class="regexp">&lt;script&gt;</span></span><br><span class="line"><span class="regexp">document.getElementById('form').submit();</span></span><br><span class="line"><span class="regexp">/</span><span class="regexp">/ TypeError: document.getElementById(...).submit is not a function</span></span><br><span class="line"><span class="regexp">&lt;/</span>script&gt;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ul>
+<li>浏览器将表单里引用的每个input元素都作为<code>&lt;form&gt;</code>元素的属性了。当所添加属性的名称是input属性的<code>id</code>值时就可能会出现问题了。如果id值恰好是form元素已经存在的属性，这些原始属性就会被新属性取而代之，如<code>action</code>或<code>submit</code>。</li>
+<li>因此，在创建<code>input#submit</code>元素之前，<code>form.action</code>引用指向的是<code>&lt;form&gt;</code>的<code>action</code>特性的值，但在创建元素之后，指向的就是<code>input#submit</code>元素了。</li>
+</ul>
+</blockquote>
+<h3 id="特征仿真"><a href="#特征仿真" class="headerlink" title="特征仿真"></a>特征仿真</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.findByTagWorksAsExpected = (<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> div = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>);</span><br><span class="line">    div.appendChild(<span class="built_in">document</span>.create(<span class="string">'test'</span>));</span><br><span class="line">    <span class="keyword">return</span> div.getElementsByTagName(<span class="string">'*'</span>).length === <span class="number">0</span>;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+
+<h2 id="元素特性和属性"><a href="#元素特性和属性" class="headerlink" title="元素特性和属性"></a>元素特性和属性</h2><p>特性（attribute）是DOM构建的一个组成部分，而属性（property）是元素保持运行时信息的主要手段，并且通过属性可以访问这些运行时信息。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> image = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)[<span class="number">0</span>];</span><br><span class="line"><span class="keyword">var</span> newSrc = <span class="string">'images/kong.png'</span>;</span><br><span class="line"></span><br><span class="line">image.src = newSrc;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(image.src); <span class="comment">// file:///F:/Web/sublimeProject/test/images/kong.png</span></span><br><span class="line"><span class="built_in">console</span>.log(image.getAttribute(<span class="string">'src'</span>)); <span class="comment">// images/kong.png</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="自定义特性的行为"><a href="#自定义特性的行为" class="headerlink" title="自定义特性的行为"></a>自定义特性的行为</h3><p>如果不确定一个特性的属性是否存在，可以对其进行测试，如果不存在的话再使用DOM方法。eg、</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> value = element.someValue? element.someValue: element.getAttribute(<span class="string">'someValue'</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="URL规范化"><a href="#URL规范化" class="headerlink" title="URL规范化"></a>URL规范化</h3><p>在访问一个引用了URL的属性（eg，href，src或action），该URL值会自动将原始值转换成完整规范的URL。</p>
+<h3 id="获取计算样式"><a href="#获取计算样式" class="headerlink" title="获取计算样式"></a>获取计算样式</h3><ol>
+<li><p>Window.getComputedStyle() 方法给出应用活动样式表后的元素的所有CSS属性的值，并解析这些值可能包含的任何基本计算。</p>
+</li>
+<li><p>语法</p>
+</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> style = <span class="built_in">window</span>.getComputedStyle(element, [pseudoElt]);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>element</code>：用于获取计算样式的Elemen</li>
+<li><code>pseudoElt</code>：可选。指定一个要匹配的伪元素的字符串。必须对普通元素省略（或null）。</li>
+<li>返回的样式是一个实时的 CSSStyleDeclaration 对象，当元素的样式更改时，它会自动更新本身。该对象提供一个名为<code>getPropertyValue()</code>的方法，接受CSS属性名称（如font-size和background-color），而不是“驼峰式”格式的名称。</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>测试getComputedStyle方法<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="css">    <span class="selector-id">#box</span> &#123;</span></span><br><span class="line">        font-size: 16px;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"box"</span>&gt;</span>我是box<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">var</span> oBox = <span class="built_in">document</span>.getElementById(<span class="string">'box'</span>);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">var</span> compSty = <span class="built_in">window</span>.getComputedStyle(oBox);</span></span><br><span class="line"></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(compSty.getPropertyValue(<span class="string">'font-size'</span>)); <span class="comment">// 16px</span></span></span><br><span class="line"></span><br><span class="line"><span class="actionscript">    oBox.style.fontSize = <span class="string">'14px'</span>;</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(compSty.getPropertyValue(<span class="string">'font-size'</span>)); <span class="comment">// 14px</span></span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="绑定和解绑事件处理程序"><a href="#绑定和解绑事件处理程序" class="headerlink" title="绑定和解绑事件处理程序"></a>绑定和解绑事件处理程序</h2><ol>
+<li>IE9之前版本：<code>attachEvent()</code>和<code>detachEvent()</code>方法</li>
+<li>现代浏览器：<code>addEventListener()</code>和<code>removeEventListener()</code>方法</li>
+</ol>
+<h2 id="冒泡与委托"><a href="#冒泡与委托" class="headerlink" title="冒泡与委托"></a>冒泡与委托</h2><p>一个元素被单击的时候可以通过event.target获得该元素的引用。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将事件处理委托给表格元素+</span></span><br><span class="line"><span class="keyword">var</span> table = <span class="built_in">document</span>.getElementById(<span class="string">'someId'</span>);</span><br><span class="line">table.addEventListener(<span class="string">'click'</span>,<span class="function"><span class="keyword">function</span>(<span class="params">event</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(event.target.tagName.toLowerCase() == <span class="string">'td'</span>) &#123;</span><br><span class="line">        event.target.style.backgroundColor = <span class="string">'yellow'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="向DOM中注入HTML"><a href="#向DOM中注入HTML" class="headerlink" title="向DOM中注入HTML"></a>向DOM中注入HTML</h2><p>有些HTML元素在被注入之前，必须存放在特定的容器元素中，例如，<code>&lt;option&gt;</code>元素必须放在<code>&lt;select&gt;</code>中。需要使用特定容器元素进行包装的问题元素有7个：</p>
+<ul>
+<li><code>&lt;option&gt;</code> and <code>&lt; optgroup&gt;</code> need to be contained in a <code>&lt;select multiple=&quot;multiple&quot;&gt;...&lt;/select&gt;</code></li>
+<li><code>&lt;legend&gt;</code> needs to be contained in a <code>&lt;fieldset&gt;...&lt;/fieldset&gt;</code></li>
+<li><code>&lt;thead&gt;</code> , <code>&lt; tbody&gt;</code> , <code>&lt; tfoot&gt;</code> , <code>&lt; colgroup&gt;</code> , and <code>&lt; caption&gt;</code> need to be contained in a<code>&lt;table&gt;...&lt;/table&gt;</code></li>
+<li><code>&lt;tr&gt;</code> needs to be in a <code>&lt;table&gt;&lt;thead&gt;...&lt;/thead&gt;&lt;/table&gt;</code> , <code>&lt;table&gt;&lt;tbody&gt;...&lt;/tbody&gt;&lt;/table&gt;</code> , or <code>&lt;table&gt;&lt;tfoot&gt;...&lt;/tfoot&gt;&lt;/table&gt;</code></li>
+<li><code>&lt;td&gt;</code> and <code>&lt;th&gt;</code> need to be in a <code>&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;...&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</code></li>
+<li><code>&lt;col&gt;</code> must be in a <code>&lt;table&gt;&lt;tbody&gt;&lt;/tbody&gt;&lt;colgroup&gt;...&lt;/colgroup&gt;&lt;/table&gt;</code></li>
+<li><code>&lt;link&gt;</code> and <code>&lt;script&gt;</code> need to be in a <code>&lt;div&gt;&lt;/div&gt;&lt;div&gt;...&lt;/div&gt;</code></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/blog/tags/js/" rel="tag"># js</a>
+            
+              <a href="/blog/tags/js%E5%BF%8D%E8%80%85%E7%A7%98%E7%B1%8D/" rel="tag"># js忍者秘籍</a>
+            
+              <a href="/blog/tags/%E8%B7%A8%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag"># 跨浏览器</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/blog/2017/10/25/secrets-of-the-js-ninja-4-threads-and-timers/" rel="next" title="JavaScript忍者秘籍笔记04之线程和定时器">
+                  <i class="fa fa-chevron-left"></i> JavaScript忍者秘籍笔记04之线程和定时器
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/blog/2017/10/30/secrets-of-the-js-ninja-6-prototype-and-oop/" rel="prev" title="JavaScript忍者秘籍笔记06之原型与面向对象">
+                  JavaScript忍者秘籍笔记06之原型与面向对象 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="gitalk-container"></div>
+  
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#浏览器bug修复"><span class="nav-number">1.</span> <span class="nav-text">浏览器bug修复</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#特征仿真"><span class="nav-number">1.1.</span> <span class="nav-text">特征仿真</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#元素特性和属性"><span class="nav-number">2.</span> <span class="nav-text">元素特性和属性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义特性的行为"><span class="nav-number">2.1.</span> <span class="nav-text">自定义特性的行为</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#URL规范化"><span class="nav-number">2.2.</span> <span class="nav-text">URL规范化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取计算样式"><span class="nav-number">2.3.</span> <span class="nav-text">获取计算样式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#绑定和解绑事件处理程序"><span class="nav-number">3.</span> <span class="nav-text">绑定和解绑事件处理程序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#冒泡与委托"><span class="nav-number">4.</span> <span class="nav-text">冒泡与委托</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#向DOM中注入HTML"><span class="nav-number">5.</span> <span class="nav-text">向DOM中注入HTML</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">PJ</p>
+  <div class="site-description" itemprop="description">B What U Wanna B</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/blog/archives/%20%7C%7C%20archive">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/blog/categories/%20%7C%7C%20th">
+          
+        
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/blog/tags/%20%7C%7C%20tags">
+          
+        
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PJ</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.1
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+<script src="/blog/js/utils.js?v=7.4.1.js"></script>
+
+<script src="/blog/js/motion.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/next-boot.js?v=7.4.1.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+<script src="/blog/js/local-search.js?v=7.4.1.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'dd946c3d0eb6bc5aaf24',
+      clientSecret: '5051b237a867f9673700aaef753148bd6fc17d34',
+      repo: 'blog',
+      owner: 'sluggishpj',
+      admin: ['sluggishpj'],
+      id: '54341fb65cb8acd6000298dae8e25b47',
+        language: window.navigator.language || window.navigator.userLanguage,
+      
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

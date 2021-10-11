@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=7.4.1" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Muse',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":true},
+    copycode: {"enable":true,"show_result":true,"style":"mac"},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="前言上一篇介绍了瀑布流布局的原理，这篇是在添加动画时的总结。以下的.box是要进行布局的div的类名">
+<meta property="og:type" content="article">
+<meta property="og:title" content="瀑布流布局-动画">
+<meta property="og:url" content="https://sluggishpj.github.io/2017/10/19/waterfall-flow-painting/index.html">
+<meta property="og:site_name" content="PJ&#39;S BLOG">
+<meta property="og:description" content="前言上一篇介绍了瀑布流布局的原理，这篇是在添加动画时的总结。以下的.box是要进行布局的div的类名">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-10-19T00:04:51.000Z">
+<meta property="article:modified_time" content="2021-10-11T12:19:35.050Z">
+<meta property="article:author" content="PJ">
+<meta property="article:tag" content="css">
+<meta property="article:tag" content="js">
+<meta property="article:tag" content="布局">
+<meta name="twitter:card" content="summary">
+  <link rel="canonical" href="https://sluggishpj.github.io/2017/10/19/waterfall-flow-painting/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>瀑布流布局-动画 | PJ'S BLOG</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PJ'S BLOG</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/blog/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+        
+          <i class="fa fa-search fa-fw"></i>
+        
+        Search
+        </a>
+      </li>
+    
+  </ul>
+
+    
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="Searching..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://sluggishpj.github.io/blog/2017/10/19/waterfall-flow-painting/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PJ">
+      <meta itemprop="description" content="B What U Wanna B">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PJ'S BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            瀑布流布局-动画
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2017-10-19 00:04:51" itemprop="dateCreated datePublished" datetime="2017-10-19T00:04:51+00:00">2017-10-19</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-10-11 12:19:35" itemprop="dateModified" datetime="2021-10-11T12:19:35+00:00">2021-10-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E5%B8%83%E5%B1%80/" itemprop="url" rel="index">
+                    <span itemprop="name">布局</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上一篇介绍了瀑布流布局的原理，这篇是在添加动画时的总结。<br>以下的<code>.box</code>是要进行布局的div的类名</p>
+<a id="more"></a>
+
+<h2 id="transform版本"><a href="#transform版本" class="headerlink" title="transform版本"></a>transform版本</h2><ol>
+<li><p>在页面的css中设置绝对定位和transition属性，设置运动时间</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.box</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">transition</span>: transform <span class="number">0.6s</span> linear;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>绝对定位是为了方便控制div的运动位置，但也为后面埋下一点坑</p>
+</blockquote>
+</li>
+<li><p>在触发页面瀑布流布局时用transform属性代替left和top定位</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 瀑布流函数</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param  <span class="type">&#123;[type]&#125;</span> </span>oBoxs     图片box数组</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param  <span class="type">&#123;[type]&#125;</span> </span>oBoxWidth 图片box宽度</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param  <span class="type">&#123;[type]&#125;</span> </span>columnNum 图片列数</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">waterfall</span>(<span class="params">oBoxs, oBoxWidth, columnNum</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> columnHeightList = [];</span><br><span class="line">    <span class="keyword">var</span> targetIndex = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; oBoxs.length; i++) &#123;</span><br><span class="line">        <span class="keyword">var</span> box = oBoxs[i];</span><br><span class="line">        <span class="keyword">if</span> (i &lt; columnNum) &#123; <span class="comment">// 第一行图片</span></span><br><span class="line">            columnHeightList.push(box.offsetHeight)</span><br><span class="line">            box.style.transform = <span class="string">'translate('</span> + oBoxWidth * i + <span class="string">'px,0px)'</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123; <span class="comment">// 其余图片</span></span><br><span class="line">            <span class="comment">// 获取高度最低的那一列序号</span></span><br><span class="line">            targetIndex = columnHeightList.indexOf(<span class="built_in">Math</span>.min.apply(<span class="literal">null</span>, columnHeightList));</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 改动的地方</span></span><br><span class="line">            box.style.transform = <span class="string">'translate('</span> + targetIndex * oBoxWidth + <span class="string">'px,'</span> + columnHeightList[targetIndex] + <span class="string">'px)'</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 最低列高度加上该div高度</span></span><br><span class="line">            columnHeightList[targetIndex] += box.offsetHeight;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>动画预览地址：<a href="http://sluggish.gitee.io/staticpages/waterfall/js-animate-ver/index2.html" target="_blank" rel="noopener">http://sluggish.gitee.io/staticpages/waterfall/js-animate-ver/index2.html</a></p>
+</blockquote>
+</li>
+</ol>
+<h2 id="改善transform版本"><a href="#改善transform版本" class="headerlink" title="改善transform版本"></a>改善transform版本</h2><ol>
+<li><p>从预览demo知，当图片加载越多时，图片下降速度变得越来越快。原因在于每次加载进去的div都是从<code>left:0;top:0</code>运动到目标位置，由于运动时间不变，垂直距离变长，垂直速度也随之加快。</p>
+</li>
+<li><p>解决方法：修改每次加载进来的图片的top值，同时在waterfall函数中的translate垂直距离应随着top的改变作出对应改变。</p>
+</li>
+</ol>
+<h3 id="加载进来的图片进行处理"><a href="#加载进来的图片进行处理" class="headerlink" title="加载进来的图片进行处理"></a>加载进来的图片进行处理</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将图片包装成box后，加载到mainDiv中【maindiv是所有box所在的div】。cb是图片加载完的回调</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">loadImg</span>(<span class="params">mainDiv, cb</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 模拟后台数据</span></span><br><span class="line">    <span class="keyword">var</span> imgData = &#123; <span class="attr">data</span>: [&#123; <span class="string">'src'</span>: <span class="string">'1.jpg'</span> &#125;, &#123; <span class="string">'src'</span>: <span class="string">'2.jpg'</span> &#125;, &#123; <span class="string">'src'</span>: <span class="string">'3.jpg'</span> &#125;,&#123; <span class="string">'src'</span>: <span class="string">'4.jpg'</span> &#125;, &#123; <span class="string">'src'</span>: <span class="string">'5.jpg'</span> &#125;, &#123; <span class="string">'src'</span>: <span class="string">'6.jpg'</span> &#125;] &#125;;</span><br><span class="line">    <span class="keyword">var</span> prefix = <span class="string">'../../source/image/'</span>;</span><br><span class="line">    <span class="keyword">var</span> imgLen = imgData.data.length;</span><br><span class="line"></span><br><span class="line">    imgData.data.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">val, index</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> oPic = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>);</span><br><span class="line">        oPic.className = <span class="string">'pic'</span>;</span><br><span class="line">        <span class="keyword">var</span> oBox = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>);</span><br><span class="line">        oBox.className = <span class="string">'box'</span>;</span><br><span class="line">        <span class="keyword">var</span> img = <span class="built_in">document</span>.createElement(<span class="string">'img'</span>);</span><br><span class="line">        img.src = prefix + val.src;</span><br><span class="line"></span><br><span class="line">        oPic.appendChild(img);</span><br><span class="line">        oBox.appendChild(oPic);</span><br><span class="line">        mainDiv.appendChild(oBox);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> scrollTop = <span class="built_in">document</span>.documentElement.scrollTop || <span class="built_in">document</span>.body.scrollTop; <span class="comment">//注意解决兼容性</span></span><br><span class="line">        <span class="keyword">var</span> bodyHeight = <span class="built_in">document</span>.documentElement.clientHeight; <span class="comment">//可视区高度</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 解决图片加载过长时下降速度过快</span></span><br><span class="line">        oBox.style.left = <span class="string">'0'</span>;</span><br><span class="line">        oBox.style.top = <span class="number">20</span>+<span class="string">'px'</span>;</span><br><span class="line">        oBox.style.top = scrollTop-bodyHeight+<span class="string">'px'</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 让所有图片加载完后执行回调，避免新加进来的图片高度获取不到，产生叠加</span></span><br><span class="line">        img.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (!--imgLen) &#123;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">'执行图片回调'</span>)</span><br><span class="line">                cb();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="waterfall函数改造"><a href="#waterfall函数改造" class="headerlink" title="waterfall函数改造"></a>waterfall函数改造</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 瀑布流函数</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param  <span class="type">&#123;[type]&#125;</span> </span>oBoxs     图片box数组</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param  <span class="type">&#123;[type]&#125;</span> </span>oBoxWidth 图片box宽度</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param  <span class="type">&#123;[type]&#125;</span> </span>columnNum 图片列数</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">waterfall</span>(<span class="params">oBoxs, oBoxWidth, columnNum</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> columnHeightList = [];</span><br><span class="line">    <span class="keyword">var</span> targetIndex = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">var</span> y = <span class="number">0</span>; <span class="comment">// 保存要移动的垂直高度</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; oBoxs.length; i++) &#123;</span><br><span class="line">        <span class="keyword">var</span> box = oBoxs[i];</span><br><span class="line">        <span class="keyword">if</span> (i &lt; columnNum) &#123; <span class="comment">// 第一行图片</span></span><br><span class="line">            columnHeightList.push(box.offsetHeight)</span><br><span class="line">            box.style.transform = <span class="string">'translate('</span> + oBoxWidth * i + <span class="string">'px,0px)'</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123; <span class="comment">// 其余图片</span></span><br><span class="line">            <span class="comment">// 获取高度最低的那一列序号</span></span><br><span class="line">            targetIndex = columnHeightList.indexOf(<span class="built_in">Math</span>.min.apply(<span class="literal">null</span>, columnHeightList));</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 获取要移动的垂直高度</span></span><br><span class="line">            <span class="keyword">var</span> y = columnHeightList[targetIndex]-box.style.top.replace(<span class="string">'px'</span>,<span class="string">''</span>);</span><br><span class="line">            box.style.transform = <span class="string">'translate('</span> + targetIndex * oBoxWidth + <span class="string">'px,'</span> + y + <span class="string">'px)'</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// box.style.transform = 'translate(' + targetIndex * oBoxWidth + 'px,' + columnHeightList[targetIndex] + 'px)';</span></span><br><span class="line"></span><br><span class="line">            columnHeightList[targetIndex] += box.offsetHeight;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>动画预览地址：<a href="http://sluggish.gitee.io/staticpages/waterfall/js-animate-ver/index.html" target="_blank" rel="noopener">http://sluggish.gitee.io/staticpages/waterfall/js-animate-ver/index.html</a></p>
+</blockquote>
+<h2 id="jq版本"><a href="#jq版本" class="headerlink" title="jq版本"></a>jq版本</h2><p>jq版本是使用jq的animate函数进行left和top定位。直接贴waterfall函数代码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 瀑布流函数</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param  <span class="type">&#123;[type]&#125;</span> </span>$oBoxs     图片box数组</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param  <span class="type">&#123;[type]&#125;</span> </span>oBoxWidth 图片box宽度</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param  <span class="type">&#123;[type]&#125;</span> </span>columnNum 图片列数</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param  <span class="type">&#123;[type]&#125;</span> </span>i         第i张图片起调整成瀑布流布局</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param  <span class="type">&#123;[type]&#125;</span> </span>columnHeightList 存放列高度的数组</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">waterfall</span>(<span class="params">$oBoxs, oBoxWidth, columnNum, i, columnHeightList</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> targetIndex = <span class="number">0</span>,</span><br><span class="line">        targetTop = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (; i &lt; $oBoxs.length; i++) &#123;</span><br><span class="line">        <span class="keyword">var</span> $box = $($oBoxs[i]);</span><br><span class="line">        <span class="keyword">var</span> boxHeight = <span class="built_in">Math</span>.floor($box[<span class="number">0</span>].offsetHeight);</span><br><span class="line">        <span class="keyword">if</span> (i &lt; columnNum) &#123; <span class="comment">// 第一行</span></span><br><span class="line">            columnHeightList.push(boxHeight)</span><br><span class="line">            $box.css(&#123; <span class="string">'position'</span>: <span class="string">'absolute'</span> &#125;);</span><br><span class="line">            $box.animate(&#123;</span><br><span class="line">                    <span class="string">'left'</span>: <span class="built_in">Math</span>.floor(i * oBoxWidth) + <span class="string">'px'</span>,</span><br><span class="line">                    <span class="string">'top'</span>: <span class="string">'0px'</span></span><br><span class="line">                &#125;,<span class="number">500</span>,<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">                    <span class="built_in">console</span>.log(<span class="string">'动画动作完成1！'</span>);</span><br><span class="line">                &#125;);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            targetIndex = columnHeightList.indexOf(<span class="built_in">Math</span>.min.apply(<span class="literal">null</span>, columnHeightList));</span><br><span class="line">            targetTop = columnHeightList[targetIndex];</span><br><span class="line">            <span class="comment">// 注意加单位啊！！！</span></span><br><span class="line">            $box.css(<span class="string">'position'</span>, <span class="string">'absolute'</span>)</span><br><span class="line"></span><br><span class="line">            $box.animate(&#123;</span><br><span class="line">                    <span class="string">'left'</span>: <span class="built_in">Math</span>.floor(targetIndex * oBoxWidth) + <span class="string">'px'</span>,</span><br><span class="line">                    <span class="string">'top'</span>: <span class="built_in">Math</span>.floor(targetTop) + <span class="string">'px'</span></span><br><span class="line">                &#125;,</span><br><span class="line">                <span class="number">500</span>,<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">                    <span class="built_in">console</span>.log(<span class="string">'动画动作完成2！'</span>);</span><br><span class="line">                &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 将所在的列高度加上图片高度</span></span><br><span class="line">            columnHeightList[targetIndex] += boxHeight;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>新增参数i是为了在垂直滚动时，只让新加入的图片进行定位，其他图片定位不变</p>
+</blockquote>
+<blockquote>
+<p>预览地址<a href="http://sluggish.gitee.io/staticpages/waterfall/jq-animate-ver/index.html" target="_blank" rel="noopener">http://sluggish.gitee.io/staticpages/waterfall/jq-animate-ver/index.html</a></p>
+</blockquote>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ol>
+<li>加载图片是要在加载完后执行回调，避免新加进来的图片高度没获取到，产生叠加</li>
+<li>使用translate后，则div距离页面顶部的高度通过offsetTop获取不到！<br>需要自己封装获取translateX和translateY的值<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取元素的translateX和translateY数值，传入一个dom元素，</span></span><br><span class="line"><span class="comment">// 返回一个对象，含属性transX和transY</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getTransform</span>(<span class="params">dom</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> transform = <span class="built_in">window</span>.getComputedStyle(dom).transform;</span><br><span class="line">    <span class="keyword">if</span>(transform == <span class="string">'none'</span>) &#123; <span class="comment">// 没使用transform的情况下</span></span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            <span class="string">'tranX'</span>:<span class="number">0</span>,</span><br><span class="line">            <span class="string">'tranY'</span>:<span class="number">0</span></span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// transform值是这种字符串 "matrix(1, 0, 0, 1, 408, 190)"</span></span><br><span class="line">    <span class="keyword">var</span> tempArr = transform.split(<span class="string">','</span>);</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="string">'transX'</span>: <span class="built_in">parseInt</span>(tempArr[<span class="number">4</span>]),</span><br><span class="line">        <span class="string">'transY'</span>: <span class="built_in">parseInt</span>(tempArr[<span class="number">5</span>].substring(<span class="number">0</span>, tempArr[<span class="number">5</span>].length - <span class="number">1</span>))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>关于matrix，可以参考这篇文章:<a href="http://www.zhangxinxu.com/wordpress/2012/06/css3-transform-matrix-%E7%9F%A9%E9%98%B5/" target="_blank" rel="noopener">http://www.zhangxinxu.com/wordpress/2012/06/css3-transform-matrix-%E7%9F%A9%E9%98%B5/</a></p>
+</blockquote>
+</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote>
+<p>源码地址（源码都做了注释）：<a href="https://gitee.com/sluggish/staticpages/tree/master/waterfall" target="_blank" rel="noopener">https://gitee.com/sluggish/staticpages/tree/master/waterfall</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/blog/tags/css/" rel="tag"># css</a>
+            
+              <a href="/blog/tags/js/" rel="tag"># js</a>
+            
+              <a href="/blog/tags/%E5%B8%83%E5%B1%80/" rel="tag"># 布局</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/blog/2017/10/16/waterfall-flow-principle/" rel="next" title="瀑布流布局-原理">
+                  <i class="fa fa-chevron-left"></i> 瀑布流布局-原理
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/blog/2017/10/21/secrets-of-the-js-ninja-2-closures/" rel="prev" title="JavaScript忍者秘籍笔记02之闭包">
+                  JavaScript忍者秘籍笔记02之闭包 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="gitalk-container"></div>
+  
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#transform版本"><span class="nav-number">2.</span> <span class="nav-text">transform版本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#改善transform版本"><span class="nav-number">3.</span> <span class="nav-text">改善transform版本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#加载进来的图片进行处理"><span class="nav-number">3.1.</span> <span class="nav-text">加载进来的图片进行处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#waterfall函数改造"><span class="nav-number">3.2.</span> <span class="nav-text">waterfall函数改造</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jq版本"><span class="nav-number">4.</span> <span class="nav-text">jq版本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注意事项"><span class="nav-number">5.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">PJ</p>
+  <div class="site-description" itemprop="description">B What U Wanna B</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/blog/archives/%20%7C%7C%20archive">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/blog/categories/%20%7C%7C%20th">
+          
+        
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/blog/tags/%20%7C%7C%20tags">
+          
+        
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PJ</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.1
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">
+      
+    Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.4.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+<script src="/blog/js/utils.js?v=7.4.1.js"></script>
+
+<script src="/blog/js/motion.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js?v=7.4.1.js"></script>
+
+
+<script src="/blog/js/next-boot.js?v=7.4.1.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+<script src="/blog/js/local-search.js?v=7.4.1.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: 'dd946c3d0eb6bc5aaf24',
+      clientSecret: '5051b237a867f9673700aaef753148bd6fc17d34',
+      repo: 'blog',
+      owner: 'sluggishpj',
+      admin: ['sluggishpj'],
+      id: 'da8eb639aed620066c11b59df3a0bb43',
+        language: window.navigator.language || window.navigator.userLanguage,
+      
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>
